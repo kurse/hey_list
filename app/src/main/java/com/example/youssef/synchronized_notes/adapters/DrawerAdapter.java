@@ -10,6 +10,9 @@ import android.widget.TextView;
 
 import com.example.youssef.synchronized_notes.R;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 /**
  * Created by Youssef on 6/4/2016.
  */
@@ -17,22 +20,27 @@ import com.example.youssef.synchronized_notes.R;
 public class DrawerAdapter extends BaseAdapter {
 
     private Context context;
-    String[] menuItems;
-    int[] itemsID;
+    ArrayList<String> menuItems;
+    ArrayList<Integer> itemsID;
     public DrawerAdapter(Context context){
         this.context = context;
-        menuItems = new String[]{"Créer son entreprise", "Se déconnecter"};
-        itemsID = new int[]{4567,54697,};
+        menuItems = new ArrayList<>();
+        itemsID = new ArrayList<>();
     }
-
+    public void clearAll(){
+        menuItems.clear();
+    }
+    public void addDrawerITem(String item){
+        menuItems.add(item);
+    }
     @Override
     public int getCount() {
-        return menuItems.length;
+        return menuItems.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return menuItems[position];
+        return menuItems.get(position);
     }
 
     @Override
@@ -52,7 +60,7 @@ public class DrawerAdapter extends BaseAdapter {
         }
         TextView itemText = (TextView) row.findViewById(R.id.item_text);
         ImageView itemIcon = (ImageView) row.findViewById(R.id.item_icon);
-        itemText.setText(menuItems[position]);
+        itemText.setText(menuItems.get(position));
 //        itemIcon.setImageResource(itemsID[position]);
         return row;
     }

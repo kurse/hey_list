@@ -3,6 +3,8 @@ package com.example.youssef.synchronized_notes.models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * Created by Youssef on 8/17/2016.
  */
@@ -19,12 +21,13 @@ import org.json.JSONObject;
 //        implicit val userJsonFormat = DefaultJsonProtocol.jsonFormat4(User.apply)
 //        }
 
-public class User {
+public class User implements Serializable{
+
+    private Company company;
     private String id;
     private String username;
     private String password;
-    private String orgId;
-
+    private boolean isCreator=false;
     public User(){
 
     }
@@ -56,13 +59,6 @@ public class User {
         this.password = password;
     }
 
-    public String getOrgId() {
-        return orgId;
-    }
-
-    public void setOrgId(String orgId) {
-        this.orgId = orgId;
-    }
 
     public JSONObject toJsonObject() throws JSONException {
         JSONObject json = new JSONObject();
@@ -70,15 +66,40 @@ public class User {
             json.put("_id",id);
         json.put("username",username);
         json.put("password",password);
-        if(this.orgId!=null)
-            json.put("orgID",orgId);
+        if(this.company!=null) {
+            json.put("orgId", company.getmId());
+            json.put("listId", company.getmListId());
+        }
         return json;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(String json) {
+        try {
+            this.company = new Company(new JSONObject(json));
+            if(company.getmCreatorId().equals(id))
+                isCreator=true;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isCreator() {
+        return isCreator;
+    }
+
+    public void setCreator(boolean creator) {
+        isCreator = creator;
     }
 
     public void initFromJsonObject(JSONObject json) throws JSONException {
         this.id = json.get("_id").toString();
         this.username = json.getString("username");
         this.password = json.getString("password");
-        this.orgId = json.getString("orgID");
+        if(json.has("company"))
+            company = new Company(json);
     }
 }

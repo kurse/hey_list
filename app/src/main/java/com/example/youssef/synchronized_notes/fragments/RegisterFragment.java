@@ -32,6 +32,8 @@ import org.springframework.web.client.RestTemplate;
 
 public class RegisterFragment extends Fragment {
 
+    RestTemplate restTemplate = new RestTemplate();
+
     private Context mContext;
     private Button mCreateGroup;
     private Button mRegister;
@@ -55,11 +57,9 @@ public class RegisterFragment extends Fragment {
             public void run() {
 
                 User user = new User(mUserName.getText().toString(), BCrypt.hashpw(mPassword.getText().toString(),BCrypt.gensalt()));
-                RestTemplate restTemplate = new RestTemplate();
-                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-                String url = "http://192.168.0.20:8080/register";
+
+                String url = "http://192.168.1.11:8080/register";
                 String requestJson = null;
                 try {
                     requestJson = user.toJsonObject().toString();
@@ -99,6 +99,8 @@ public class RegisterFragment extends Fragment {
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         mPassword = (EditText) view.findViewById(R.id.password);
         mUserName = (EditText) view.findViewById(R.id.username);
         mRegister = (Button) view.findViewById(R.id.create_account);

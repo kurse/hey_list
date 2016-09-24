@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.youssef.synchronized_notes.fragments.ObjectListFragment;
+
 import java.util.ArrayList;
 
 /**
@@ -19,9 +21,16 @@ public class ItemsAdapter extends BaseAdapter {
     Context context;
     ArrayList<String> data = new ArrayList<>();
     private static LayoutInflater inflater = null;
-
-    public ItemsAdapter(Context context){
+    private ObjectListFragment mOLFragment;
+    public boolean contains(String object){
+        if(data.contains(object))
+            return true;
+        else
+            return false;
+    }
+    public ItemsAdapter(Context context, ObjectListFragment fragment){
         this.context = context;
+        this.mOLFragment = fragment;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 //    public ItemsAdapter(Context context, String[] data) {
@@ -66,6 +75,7 @@ public class ItemsAdapter extends BaseAdapter {
         remove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mOLFragment.removeItemDB(data.get(position));
                 data.remove(position);
                 notifyDataSetChanged();
             }

@@ -33,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
  */
 
 public class LoginFragment extends Fragment {
+    RestTemplate restTemplate = new RestTemplate();
 
     private Context mContext;
     private Button mLoginButton;
@@ -49,6 +50,8 @@ public class LoginFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         mContext = view.getContext();
         mLoginButton = (Button)view.findViewById(R.id.login);
         mRegisterButton = (Button)view.findViewById(R.id.register);
@@ -90,12 +93,10 @@ public class LoginFragment extends Fragment {
             public void run() {
 
 //                User user = new User(mUserNameT.getText().toString(), mPasswordT.getText().toString());
-                User user = new User("test1","1234");
-                RestTemplate restTemplate = new RestTemplate();
-                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+                User user = new User(mUserNameT.getText().toString(),mPasswordT.getText().toString());
 
-                String url = "http://192.168.0.20:8080/auth";
+
+                String url = "http://192.168.1.11:8080/auth";
                 String requestJson = null;
                 try {
                     requestJson = user.toJsonObject().toString();
