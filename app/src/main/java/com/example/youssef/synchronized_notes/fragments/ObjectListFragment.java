@@ -70,7 +70,7 @@ public class ObjectListFragment extends Fragment {
 
 
 
-                String url = "http://192.168.1.11:8080/addItem";
+                String url = "http://137.74.44.134:8080/addItem";
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -122,7 +122,7 @@ public class ObjectListFragment extends Fragment {
             @Override
             public void run() {
 
-                String url = "http://192.168.1.11:8080/removeItem";
+                String url = "http://137.74.44.134:8080/removeItem";
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -233,7 +233,7 @@ public class ObjectListFragment extends Fragment {
 
 
 
-                String url = "http://192.168.1.11:8080/getList";
+                String url = "http://137.74.44.134:8080/getList";
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -279,6 +279,13 @@ public class ObjectListFragment extends Fragment {
         Thread t = new Thread(r);
         t.start();
     }
+
+    @Override
+    public void onDestroy() {
+        getActivity().finish();
+        super.onDestroy();
+    }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

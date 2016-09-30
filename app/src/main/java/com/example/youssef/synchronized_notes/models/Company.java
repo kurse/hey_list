@@ -71,10 +71,16 @@ public class Company implements Serializable{
         this.mCreatorId = mCreatorId;
     }
 
+    private String getIdSub(String id){
+
+        String idSub = id.substring(9,id.length()-2);
+        return idSub;
+    }
     public void initFromJson(JSONObject json){
         try {
 //            JSONObject oid = new JSONObject(json.getString("_id"));
-            this.mId = json.getString("_id");
+            this.mId = getIdSub(json.getString("_id"));
+
             this.mName = json.getString("name");
             if(json.has("listId"))
                 this.mListId= json.getString("listId");

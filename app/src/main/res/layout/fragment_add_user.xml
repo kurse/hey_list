@@ -4,22 +4,14 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <EditText
-        android:id="@+id/username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="Nom d'utilisateur"
-        />
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="Mot de passe"
-        android:inputType="textPassword"
-        />
     <Button
-        android:id="@+id/create_account"
+        android:id="@+id/add_user_existing"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="s'enregistrer"/>
+        android:text="Existant"/>
+    <Button
+        android:id="@+id/add_user_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Créer nouveau"/>
 </LinearLayout>

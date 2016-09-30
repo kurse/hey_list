@@ -13,8 +13,10 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.youssef.synchronized_notes.adapters.DrawerAdapter;
+import com.example.youssef.synchronized_notes.fragments.AddUserFragment;
 import com.example.youssef.synchronized_notes.fragments.CompanyCreationFragment;
 import com.example.youssef.synchronized_notes.fragments.ObjectListFragment;
 import com.example.youssef.synchronized_notes.models.User;
@@ -70,16 +72,19 @@ public class MainActivity extends AppCompatActivity {
 //        data.putString("userId",mCurUser.getId());
 //        if(mCurUser.g
         list.setArguments(data);
-        ft.replace(R.id.fragments_view,list).commit();
+        ft.replace(R.id.fragments_view,list)
+                .addToBackStack("objectsList")
+                .commit();
         addDrawerItems();
 
     }
+
 
     private void addDrawerItems() {
         mAdapter = new DrawerAdapter(MainActivity.this);
         mDrawerList.setAdapter(mAdapter);
         if(mCurUser.getCompany()==null) {
-            mAdapter.addDrawerITem("Créer son entreprise");
+            mAdapter.addDrawerITem("Créer son groupe");
         }
         else{
             mAdapter.clearAll();
@@ -91,20 +96,37 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 0) {
-                    if(!mCurUser.isCreator()){
-                        FragmentManager fm = getFragmentManager();
-                        FragmentTransaction ft = fm.beginTransaction();
+                    FragmentManager fm = getFragmentManager();
+                    FragmentTransaction ft = fm.beginTransaction();
+                    Bundle bundle = new Bundle();
+                    TextView optionItem = (TextView)view;
+                    if(optionItem.getText().toString().equals("Créer son groupe")){
                         Fragment companyCreation = new CompanyCreationFragment();
-                        Bundle bundle = new Bundle();
                         bundle.putString("id", mCurUser.getId());
                         companyCreation.setArguments(bundle);
-                        ft.replace(R.id.fragments_view, companyCreation).commit();
-                        DrawerLayout dl = (DrawerLayout) findViewById(R.id.activity_main);
-                        dl.closeDrawer(Gravity.LEFT);
-                    } else {
+                        ft.addToBackStack(null);
+                        ft.replace(R.id.fragments_view, companyCreation)
+                                .addToBackStack("companyCreation")
+                                .commit();
 
+                    } else if(optionItem.getText().toString().equals("Créer son groupe")) {
+                        bundle.putString("listId",mCurUser.getCompany().getmListId());
+                        bundle.putString("orgId", mCurUser.getCompany().getmId());
+                        bundle.putString("token",mToken);
+                        Fragment addUserFragment = new AddUserFragment();
+                        addUserFragment.setArguments(bundle);
+                        ft.replace(R.id.fragments_view,addUserFragment)
+                                .addToBackStack("addUser")
+                                .commit();
                     }
-
+                    else{
+                        Intent returnToStart = new Intent(getApplicationContext(),LoginActivity.class);
+                        disconnect();
+                        startActivity(returnToStart);
+                        finish();
+                    }
+                    DrawerLayout dl = (DrawerLayout) findViewById(R.id.activity_main);
+                    dl.closeDrawer(Gravity.LEFT);
                 }
                 else if(position == mAdapter.getCount()-1){
                     Intent returnToStart = new Intent(getApplicationContext(),LoginActivity.class);
@@ -112,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(returnToStart);
                     finish();
                 }
+
             }
         });
     }
@@ -122,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-                String url = "http://192.168.1.11:8080/disconnect";
+                String url = "http://137.74.44.134:8080/disconnect";
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);

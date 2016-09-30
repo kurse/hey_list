@@ -65,7 +65,7 @@ public class CompanyCreationFragment extends Fragment {
 
                 Company company = new Company(mCompanyName.getText().toString(),mUserId);
 
-                String url = "http://192.168.1.11:8080/newgroup";
+                String url = "http://137.74.44.134:8080/newgroup";
                 String requestJson = company.toJSOnObject().toString();
 
                 HttpHeaders headers = new HttpHeaders();
@@ -84,12 +84,12 @@ public class CompanyCreationFragment extends Fragment {
                         getActivity().finish();
                     }
                     else
-                        Toast.makeText(mContext,"Cette entreprise existe déjà",Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext,"Error",Toast.LENGTH_LONG).show();
                 }catch (Exception e){
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(mContext,"Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard",Toast.LENGTH_LONG).show();
+                            Toast.makeText(mContext,"Error",Toast.LENGTH_LONG).show();
                         }
                     });
                 }

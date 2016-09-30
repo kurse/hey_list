@@ -70,7 +70,9 @@ public class LoginFragment extends Fragment {
                 FragmentTransaction ft = fm.beginTransaction();
                 Fragment list = new RegisterFragment();
                 ft.addToBackStack(null);
-                ft.replace(R.id.fragment_holder,list).commit();
+                ft.replace(R.id.fragment_holder,list)
+                        .addToBackStack("register")
+                        .commit();
 
             }
         });
@@ -96,7 +98,7 @@ public class LoginFragment extends Fragment {
                 User user = new User(mUserNameT.getText().toString(),mPasswordT.getText().toString());
 
 
-                String url = "http://192.168.1.11:8080/auth";
+                String url = "http://137.74.44.134:8080/auth";
                 String requestJson = null;
                 try {
                     requestJson = user.toJsonObject().toString();
