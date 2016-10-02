@@ -4,39 +4,92 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center">
+    android:gravity="center_horizontal"
+    android:background="@drawable/background_login"
+    android:weightSum="1">
 
-        <EditText
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.4"
+        android:inputType="textPersonName"
+        android:hint="Hey!List"
+        android:gravity="center"
+        android:textColorHint="#FFFF"
+        android:textSize="50sp"
+        android:ems="10"
+        tools:layout_editor_absoluteX="62dp"
+        tools:layout_editor_absoluteY="31dp"
+        android:paddingLeft="@dimen/text_margin"
+        android:paddingRight="@dimen/text_margin"
+        android:textColor="#FFFF"
+        android:id="@+id/textView" />
+
+    <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
+            android:hint="Nom d'utilisateur"
+            android:drawableLeft="@drawable/icon_username"
+            android:background="#FFFF"
+            android:textColorHint="#96B7CA6C"
             android:ems="10"
             tools:layout_editor_absoluteX="62dp"
             tools:layout_editor_absoluteY="31dp"
+            android:drawablePadding="10dip"
+            android:layout_marginBottom="@dimen/text_margin"
+            android:paddingLeft="@dimen/text_margin"
+            android:paddingRight="@dimen/text_margin"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+            android:textColor="#B7CA6C"
             android:id="@+id/name" />
 
         <EditText
+            android:textColor="#B7CA6C"
+            android:textColorHint="#96B7CA6C"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
+            android:drawableLeft="@drawable/icon_password"
+            android:drawablePadding="10dip"
+            android:hint="Mot de passe"
+
+
+            android:paddingLeft="@dimen/text_margin"
+            android:paddingRight="@dimen/text_margin"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"            android:layout_marginBottom="@dimen/text_margin"
+
             android:ems="10"
+            android:background="#FFFF"
             tools:layout_editor_absoluteX="55dp"
             tools:layout_editor_absoluteY="86dp"
             android:id="@+id/password" />
 
         <Button
-            android:text="login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/activity_vertical_margin"
+            android:paddingRight="@dimen/activity_vertical_margin"
+            android:text="Connexion"
+            android:textColor="#FFFF"
+            android:layout_width="214dp"
+            android:layout_height="32dp"
             tools:layout_editor_absoluteX="95dp"
             tools:layout_editor_absoluteY="152dp"
-            android:id="@+id/login" />
+            android:id="@+id/login"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin"
+            android:background="#91A516"
+            android:layout_weight="0.01" />
 
         <Button
-            android:text="register"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="91dp"
-            tools:layout_editor_absoluteY="216dp"
+            android:textColor="#FFFF"
+            android:background="#91A516"
+            android:text="s'inscrire"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin"
+
+            android:layout_width="214dp"
+            android:layout_height="32dp"
+            tools:layout_editor_absoluteX="95dp"
+            tools:layout_editor_absoluteY="152dp"
             android:id="@+id/register" />
 </LinearLayout>

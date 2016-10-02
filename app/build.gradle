@@ -5,10 +5,10 @@ android {
     compileSdkVersion 23
     buildToolsVersion "24.0.0"
     defaultConfig {
-        applicationId "com.example.youssef.synchronized_notes"
+        applicationId "com.hey.youssef.hey.list"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 1
+        versionCode 2
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

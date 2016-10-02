@@ -1,17 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center">
-
-    <Button
-        android:id="@+id/add_user_existing"
+    android:gravity="center_horizontal"
+    android:weightSum="1"
+    android:background="@drawable/background_login">
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_weight="0.4"
+        android:inputType="textPersonName"
+        android:hint="Ajout d'utilisateurs"
+        android:gravity="center"
+        android:textColorHint="#FFFF"
+        android:textSize="40sp"
+        android:ems="10"
+        tools:layout_editor_absoluteX="62dp"
+        tools:layout_editor_absoluteY="31dp"
+        android:paddingLeft="@dimen/text_margin"
+        android:paddingRight="@dimen/text_margin"
+        android:textColor="#FFFF"
+        android:id="@+id/textView" />
+    <Button
+        android:id="@+id/add_user_existing"
+        android:paddingLeft="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_vertical_margin"
+        android:textColor="#FFFF"
+        android:layout_width="214dp"
+        android:layout_height="32dp"
+        tools:layout_editor_absoluteX="95dp"
+        tools:layout_editor_absoluteY="152dp"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"
+        android:background="#91A516"
+        android:layout_weight="0.01"
         android:text="Existant"/>
     <Button
         android:id="@+id/add_user_new"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_vertical_margin"
+        android:textColor="#FFFF"
+        android:layout_width="214dp"
+        android:layout_height="32dp"
+        tools:layout_editor_absoluteX="95dp"
+        tools:layout_editor_absoluteY="152dp"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"
+        android:background="#91A516"
+        android:layout_weight="0.01"
         android:text="Créer nouveau"/>
+    <Button
+        android:id="@+id/back"
+        android:paddingLeft="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_vertical_margin"
+        android:textColor="#FFFF"
+        android:layout_width="214dp"
+        android:layout_height="32dp"
+        tools:layout_editor_absoluteX="95dp"
+        tools:layout_editor_absoluteY="152dp"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"
+        android:background="#91A516"
+        android:layout_weight="0.01"
+        android:text="retour"/>
 </LinearLayout>

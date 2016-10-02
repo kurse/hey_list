@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_gravity="center"
-    tools:context="com.example.youssef.synchronized_notes.LoginActivity">
+    tools:context="com.example.youssef.list.LoginActivity">
     <LinearLayout
         android:orientation="vertical"
         android:id="@+id/fragment_holder"
