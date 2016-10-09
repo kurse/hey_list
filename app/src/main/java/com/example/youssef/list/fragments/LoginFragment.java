@@ -32,6 +32,9 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by Youssef on 8/20/2016.
  */
@@ -40,10 +43,10 @@ public class LoginFragment extends Fragment {
     RestTemplate restTemplate = new RestTemplate();
     AlertDialog dba;
     private Context mContext;
-    private Button mLoginButton;
-    private Button mRegisterButton;
-    private EditText mUserNameT;
-    private EditText mPasswordT;
+    @BindView(R.id.login) Button mLoginButton;
+    @BindView(R.id.register) Button mRegisterButton;
+    @BindView(R.id.username) EditText mUserNameT;
+    @BindView(R.id.password) EditText mPasswordT;
 
     @Nullable
     @Override
@@ -57,10 +60,11 @@ public class LoginFragment extends Fragment {
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         mContext = getActivity();
-        mLoginButton = (Button) view.findViewById(R.id.login);
-        mRegisterButton = (Button) view.findViewById(R.id.register);
-        mUserNameT = (EditText) view.findViewById(R.id.name);
-        mPasswordT = (EditText) view.findViewById(R.id.password);
+        ButterKnife.bind(this,view);
+//        mLoginButton = (Button) view.findViewById(R.id.login);
+//        mRegisterButton = (Button) view.findViewById(R.id.register);
+//        mUserNameT = (EditText) view.findViewById(R.id.name);
+//        mPasswordT = (EditText) view.findViewById(R.id.password);
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

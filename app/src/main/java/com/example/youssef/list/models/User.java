@@ -73,6 +73,9 @@ public class User implements Serializable{
         return json;
     }
 
+    public String chnouSmytek(){
+        return username;
+    }
     public Company getCompany() {
         return company;
     }

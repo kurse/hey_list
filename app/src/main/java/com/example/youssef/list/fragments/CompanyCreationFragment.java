@@ -25,6 +25,9 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by Youssef on 8/22/2016.
  */
@@ -32,8 +35,8 @@ import org.springframework.web.client.RestTemplate;
 public class CompanyCreationFragment extends Fragment {
     RestTemplate restTemplate = new RestTemplate();
 
-    private EditText mCompanyName;
-    private Button mButtonCreate;
+    @BindView(R.id.company_name) EditText mCompanyName;
+    @BindView(R.id.create_company_button) Button mButtonCreate;
     private String mUserId;
     private Context mContext;
     @Nullable
@@ -45,14 +48,14 @@ public class CompanyCreationFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        ButterKnife.bind(this,view);
         ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         mUserId = this.getArguments().getString("id");
         this.mContext = view.getContext();
-        mCompanyName = (EditText) view.findViewById(R.id.company_name);
-        mButtonCreate = (Button) view.findViewById(R.id.create_company_button);
+//        mCompanyName = (EditText) view.findViewById(R.id.company_name);
+//        mButtonCreate = (Button) view.findViewById(R.id.create_company_button);
         mButtonCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

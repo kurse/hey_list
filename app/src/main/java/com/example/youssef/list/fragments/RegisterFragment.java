@@ -29,6 +29,9 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by Youssef on 8/20/2016.
  */
@@ -43,12 +46,10 @@ public class RegisterFragment extends Fragment {
     private String mListId;
     private Context mContext;
     private boolean addingNewMode = false;
-    private Button mCreateGroup;
-    private Button mRegister;
-    private EditText mUserName;
-    private EditText mPassword;
-    private EditText mPassConfirm;
-    private EditText mGroupName;
+    @BindView(R.id.create_account) Button mRegister;
+    @BindView(R.id.register_username) EditText mUserName;
+    @BindView(R.id.register_password) EditText mPassword;
+    @BindView(R.id.password_confirm) EditText mPassConfirm;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -200,12 +201,13 @@ public class RegisterFragment extends Fragment {
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ButterKnife.bind(this,view);
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        mPassword = (EditText) view.findViewById(R.id.password);
-        mPassConfirm = (EditText) view.findViewById(R.id.password_confirm);
-        mUserName = (EditText) view.findViewById(R.id.username);
-        mRegister = (Button) view.findViewById(R.id.create_account);
+//        mPassword = (EditText) view.findViewById(R.id.password);
+//        mPassConfirm = (EditText) view.findViewById(R.id.password_confirm);
+//        mUserName = (EditText) view.findViewById(R.id.username);
+//        mRegister = (Button) view.findViewById(R.id.create_account);
         mContext = view.getContext();
         mRegister.setOnClickListener(new View.OnClickListener() {
             @Override

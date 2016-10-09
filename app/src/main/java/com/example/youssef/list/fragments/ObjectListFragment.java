@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -27,8 +28,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.youssef.list.ItemsAdapter;
+import com.example.youssef.list.presenters.ListPresenter;
 import com.example.youssef.list.R;
+import com.example.youssef.list.interfaces.Contract;
 import com.example.youssef.list.models.User;
+import com.example.youssef.list.presenters.PresenterCache;
+import com.example.youssef.list.presenters.PresenterFactory;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,23 +45,50 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by Youssef on 7/30/2016.
  */
 
-public class ObjectListFragment extends Fragment {
+public class ObjectListFragment extends Fragment implements Contract.View<ArrayList<String>> {
+
+    private PresenterCache presenterCache =
+            PresenterCache.getInstance();
+    private PresenterFactory<ListPresenter> presenterFactory =
+            new PresenterFactory<ListPresenter>() {
+                @NonNull
+                @Override
+                public ListPresenter createPresenter() {
+                    return new ListPresenter();
+                }
+            };
+    private boolean isDestroyedBySystem;
+    private ListPresenter presenter;
+
     RestTemplate restTemplate = new RestTemplate();
+    Runnable mServerRunnable;
+    ListPresenter listPresenter;
+    Thread mServerThread;
+    Boolean isRequest = false;
     AlertDialog dba;
-    private String mToken;
-    private User mCurUser;
+    Dialog dbRetry;
+    public String mToken;
+    public User mCurUser;
     Context mContext;
-    private ListView mObjectsList;
+    Runnable uiRunnable;
+    @BindView(R.id.objects_list) ListView mObjectsList;
     private ItemsAdapter mObjectsAdapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setRetainInstance(true);
+        presenter = presenterCache.getPresenter(ListPresenter.TAG,
+                presenterFactory);
 
     }
 
@@ -120,58 +152,58 @@ public class ObjectListFragment extends Fragment {
         Thread t = new Thread(r);
         t.start();
     }
-    public void removeItemDB(final String item){
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-
-                String url = "http://137.74.44.134:8080/removeItem";
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.add("authToken",mToken);
-                String response="";
-                try {
-                    JSONObject json = new JSONObject();
-                    json.put("listId",mCurUser.getCompany().getmListId());
-                    json.put("item",item);
-                    String listIdJson = json.toString();
-                    HttpEntity<String> entity = new HttpEntity<>(listIdJson,headers);
-
-                    response = restTemplate.postForObject(url, entity, String.class);
-                    Log.d("response", response);
-                    if (!response.equals("exists")) {
-                        JSONObject jsonResponse = new JSONObject(response);
-                        final JSONArray array = new JSONArray(jsonResponse.getString("list"));
-
-//                        getActivity().runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                for(int i=0;i<array.length();i++)
-//                                    try {
-//                                        if(!mObjectsAdapter.contains(array.getString(i)))
-//                                            mObjectsAdapter.addItem(array.getString(i));
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                            }
-//                        });
-                    }
-                    else
-                        Toast.makeText(mContext,"Erreur de connexion",Toast.LENGTH_LONG).show();
-                }catch (Exception e){
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mContext,"Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard",Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-            }
-        };
-        Thread t = new Thread(r);
-        t.start();
-    }
+//    public void removeItemDB(final String item){
+//        Runnable r = new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                String url = "http://137.74.44.134:8080/removeItem";
+//
+//                HttpHeaders headers = new HttpHeaders();
+//                headers.setContentType(MediaType.APPLICATION_JSON);
+//                headers.add("authToken",mToken);
+//                String response="";
+//                try {
+//                    JSONObject json = new JSONObject();
+//                    json.put("listId",mCurUser.getCompany().getmListId());
+//                    json.put("item",item);
+//                    String listIdJson = json.toString();
+//                    HttpEntity<String> entity = new HttpEntity<>(listIdJson,headers);
+//
+//                    response = restTemplate.postForObject(url, entity, String.class);
+//                    Log.d("response", response);
+//                    if (!response.equals("exists")) {
+//                        JSONObject jsonResponse = new JSONObject(response);
+//                        final JSONArray array = new JSONArray(jsonResponse.getString("list"));
+//
+////                        getActivity().runOnUiThread(new Runnable() {
+////                            @Override
+////                            public void run() {
+////                                for(int i=0;i<array.length();i++)
+////                                    try {
+////                                        if(!mObjectsAdapter.contains(array.getString(i)))
+////                                            mObjectsAdapter.addItem(array.getString(i));
+////                                    } catch (JSONException e) {
+////                                        e.printStackTrace();
+////                                    }
+////                            }
+////                        });
+//                    }
+//                    else
+//                        Toast.makeText(mContext,"Erreur de connexion",Toast.LENGTH_LONG).show();
+//                }catch (Exception e){
+//                    getActivity().runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(mContext,"Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard",Toast.LENGTH_LONG).show();
+//                        }
+//                    });
+//                }
+//            }
+//        };
+//        Thread t = new Thread(r);
+//        t.start();
+//    }
     private void showDialogText(){
         final AlertDialog.Builder db = new AlertDialog.Builder(mContext);
         db.setTitle("Ajout");
@@ -186,8 +218,8 @@ public class ObjectListFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String item = objectT.getText().toString();
-                mObjectsAdapter.addItem(item);
-                addItemDB(item);
+//                mObjectsAdapter.addItem(item);
+                presenter.addItemDB(item);
             }
         });
         db.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
@@ -208,14 +240,12 @@ public class ObjectListFragment extends Fragment {
         objectT.setImeOptions(EditorInfo.IME_ACTION_DONE);
         dba.show();
     }
-    private void initList(){
 
-    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.action_refresh:
-                fetchList();
+                presenter.fetchList();
                 return true;
             case R.id.action_add:
                 if(mCurUser.getCompany()!=null)
@@ -234,71 +264,133 @@ public class ObjectListFragment extends Fragment {
         }
     }
 
+
+    @Override
+    public void onNext(final ArrayList<String> array){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mObjectsAdapter.clear();
+                for (int i = 0; i < array.size(); i++)
+                    mObjectsAdapter.addItem(array.get(i));
+                mObjectsAdapter.notifyDataSetChanged();
+            }
+        });
+
+    }
+    @Override
+    public void showError(final String error){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(dba!=null && dba.isShowing())
+                    dba.dismiss();
+                final AlertDialog.Builder db = new AlertDialog.Builder(mContext);
+                db.setTitle("Erreur");
+                db.setMessage(error);
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.retry_dialog_layout, null);
+                db.setView(dialogView);
+                dbRetry  = db.create();
+                dbRetry.show();
+                Button retryButton = (Button)dbRetry.findViewById(R.id.retry);
+                retryButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        SharedPreferences sharedPref = getActivity().getSharedPreferences("account",Context.MODE_PRIVATE);
+                        String username = sharedPref.getString("username","");
+                        String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
+                        login(username, password);
+                        dbRetry.dismiss();
+                    }
+                });
+                TextView title = (TextView)dbRetry.findViewById(android.R.id.title);
+                if(title!=null)
+                    title.setGravity(Gravity.CENTER);
+                TextView msg = (TextView)dbRetry.findViewById(android.R.id.message);
+                if(msg!=null)
+                    msg.setGravity(Gravity.CENTER);
+            }
+        });
+
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        presenter.takeView(null);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         ((AppCompatActivity)getActivity()).getSupportActionBar().show();
-        if(mCurUser.getCompany() != null)
-            fetchList();
+        if(presenter == null)
+            presenter = presenterCache.getPresenter(ListPresenter.TAG,presenterFactory);
+        presenter.takeView(this);
+//        if(mCurUser.getCompany() != null)
+//            fetchList();
     }
 
     private void fetchList(){
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
+        if(!isRequest) {
+            mServerRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    isRequest = true;
+                    String url = "http://137.74.44.134:8080/getList";
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    headers.add("authToken", mToken);
+                    String response = "";
+                    try {
+                        JSONObject json = new JSONObject();
+                        json.put("listId", mCurUser.getCompany().getmListId());
+                        String listIdJson = json.toString();
+                        HttpEntity<String> entity = new HttpEntity<>(listIdJson, headers);
 
-
-
-                String url = "http://137.74.44.134:8080/getList";
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.add("authToken",mToken);
-                String response="";
-                try {
-                    JSONObject json = new JSONObject();
-                    json.put("listId",mCurUser.getCompany().getmListId());
-                    String listIdJson = json.toString();
-                    HttpEntity<String> entity = new HttpEntity<>(listIdJson,headers);
-
-                    response = restTemplate.postForObject(url, entity, String.class);
-                    Log.d("response", response);
-                    if (!response.equals("invalidToken")) {
-                        JSONObject jsonResponse = new JSONObject(response);
-                        final JSONArray array = new JSONArray(jsonResponse.getString("list"));
+                        response = restTemplate.postForObject(url, entity, String.class);
+                        isRequest = false;
+                        Log.d("response", response);
+                        if (!response.equals("invalidToken")) {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            final JSONArray array = new JSONArray(jsonResponse.getString("list"));
 
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    for(int i=0;i<array.length();i++)
+                                    mObjectsAdapter.clear();
+
+                                    for (int i = 0; i < array.length(); i++)
                                         try {
-                                            if(!mObjectsAdapter.contains(array.getString(i)))
+                                            if (!mObjectsAdapter.contains(array.getString(i)))
                                                 mObjectsAdapter.addItem(array.getString(i));
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
                                 }
                             });
-                    }
-                    else{
-                        SharedPreferences sharedPref = getActivity().getSharedPreferences("account",Context.MODE_PRIVATE);
-                        String username = sharedPref.getString("username","");
-                        String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
-                        login(username, password);
-                    }
-                }catch (Exception e){
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mContext,"Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard",Toast.LENGTH_LONG).show();
-                            showRetryDlg();
+                        } else {
+                            SharedPreferences sharedPref = getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
+                            String username = sharedPref.getString("username", "");
+                            String password = new String(Base64.decode(sharedPref.getString("password", ""), Base64.DEFAULT));
+                            login(username, password);
                         }
-                    });
+                    } catch (Exception e) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(mContext, "Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard", Toast.LENGTH_LONG).show();
+                                showRetryDlg();
+                            }
+                        });
+                    }
                 }
-            }
-        };
-        Thread t = new Thread(r);
-        t.start();
+            };
+            mServerThread = new Thread(mServerRunnable);
+            mServerThread.start();
+        }
     }
     private void login(final String username, final String password){
 
@@ -379,7 +471,7 @@ public class ObjectListFragment extends Fragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.retry_dialog_layout, null);
         db.setView(dialogView);
-        final Dialog dbRetry = db.create();
+        dbRetry  = db.create();
         dbRetry.show();
         Button retryButton = (Button)dbRetry.findViewById(R.id.retry);
         retryButton.setOnClickListener(new View.OnClickListener() {
@@ -388,7 +480,7 @@ public class ObjectListFragment extends Fragment {
                 SharedPreferences sharedPref = getActivity().getSharedPreferences("account",Context.MODE_PRIVATE);
                 String username = sharedPref.getString("username","");
                 String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
-                login(username, password);
+                presenter.login(username, password);
                 dbRetry.dismiss();
             }
         });
@@ -403,6 +495,8 @@ public class ObjectListFragment extends Fragment {
     public void onDestroy() {
         if(dba!=null && dba.isShowing())
             dba.dismiss();
+        if(dbRetry!=null && dbRetry.isShowing())
+            dba.dismiss();
         getActivity().finish();
         super.onDestroy();
     }
@@ -413,11 +507,15 @@ public class ObjectListFragment extends Fragment {
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         mContext = view.getContext();
-        LinearLayout ll = (LinearLayout) view;
-        mObjectsList = (ListView)ll.findViewById(R.id.objects_list);
-        mObjectsAdapter = new ItemsAdapter(mContext, this);
+        ButterKnife.bind(this, view);
+//        LinearLayout ll = (LinearLayout) view;
+//        mObjectsList = (ListView)ll.findViewById(R.id.objects_list);
+        mObjectsAdapter = new ItemsAdapter(mContext, presenter);
         mObjectsList.setAdapter(mObjectsAdapter);
         mCurUser = (User) this.getArguments().getSerializable("user");
         mToken = this.getArguments().getString("token");
+//        presenter = new ListPresenter();
+        presenter.takeView(this);
     }
+
 }

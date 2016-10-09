@@ -43,7 +43,7 @@
             android:paddingTop="4dip"
             android:paddingBottom="4dip"
             android:textColor="#B7CA6C"
-            android:id="@+id/name" />
+            android:id="@+id/username" />
 
         <EditText
             android:textColor="#B7CA6C"

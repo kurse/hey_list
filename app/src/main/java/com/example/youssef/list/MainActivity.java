@@ -30,9 +30,12 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
     private User mCurUser;
-    private ListView mDrawerList;
+    @BindView(R.id.navList) ListView mDrawerList;
     private DrawerAdapter mAdapter;
     private String mToken;
 
@@ -42,9 +45,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         Toolbar tb = (Toolbar)findViewById(R.id.main_tb);
 
-        mDrawerList = (ListView)findViewById(R.id.navList);
+//        mDrawerList = (ListView)findViewById(R.id.navList);
         if(mCurUser == null)
             mCurUser= new User();
         addDrawerItems();

@@ -24,7 +24,7 @@
         android:textColor="#FFFF"
         android:id="@+id/textView" />
     <EditText
-        android:id="@+id/username"
+        android:id="@+id/register_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
@@ -44,7 +44,7 @@
         android:textColor="#B7CA6C"
         />
     <EditText
-        android:id="@+id/password"
+        android:id="@+id/register_password"
         android:textColor="#B7CA6C"
         android:textColorHint="#96B7CA6C"
         android:layout_width="wrap_content"
