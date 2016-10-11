@@ -84,7 +84,7 @@ public class AddUserFragment extends Fragment{
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(mContext, "L'utilisateur a été bien ajouté", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(mContext, getString(R.string.add_user_success), Toast.LENGTH_LONG).show();
                                     }
                                 });
                             }
@@ -92,7 +92,7 @@ public class AddUserFragment extends Fragment{
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(mContext, "Erreur", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(mContext, getString(R.string.error_user_not_exist), Toast.LENGTH_LONG).show();
                                     }
                                 });                            }
 //                        getActivity().runOnUiThread(new Runnable() {
@@ -109,13 +109,13 @@ public class AddUserFragment extends Fragment{
 //                        });
                     }
                     else {
-                        Toast.makeText(mContext, "Erreur", Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext, getString(R.string.error_title_generic), Toast.LENGTH_LONG).show();
                     }
                 }catch (Exception e){
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(mContext,"Erreur ",Toast.LENGTH_LONG).show();
+                            Toast.makeText(mContext,getString(R.string.error_title_generic),Toast.LENGTH_LONG).show();
                         }
                     });
                 }
@@ -127,8 +127,8 @@ public class AddUserFragment extends Fragment{
 
     private void showAddExistingDlg(){
         final AlertDialog.Builder db = new AlertDialog.Builder(mContext);
-        db.setTitle("Ajout");
-        db.setMessage("Nom de l'utilisateur");
+        db.setTitle(getString(R.string.add_title));
+        db.setMessage(getString(R.string.username));
         final EditText objectT = new EditText(mContext);
         objectT.setImeOptions(EditorInfo.IME_ACTION_DONE);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -136,14 +136,14 @@ public class AddUserFragment extends Fragment{
                 LinearLayout.LayoutParams.MATCH_PARENT);
         objectT.setLayoutParams(lp);
         db.setView(objectT);
-        db.setPositiveButton("Ajouter", new DialogInterface.OnClickListener() {
+        db.setPositiveButton(getString(R.string.action_add), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
                 addUserServ(objectT.getText().toString());
             }
         });
-        db.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+        db.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();

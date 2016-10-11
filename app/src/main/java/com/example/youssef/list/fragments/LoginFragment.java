@@ -124,7 +124,7 @@ public class LoginFragment extends Fragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(mContext,"Erreur: utilisateur introuvable",Toast.LENGTH_LONG).show();
+                                Toast.makeText(mContext,getString(R.string.error_user_not_exist),Toast.LENGTH_LONG).show();
                                 dba.dismiss();
                             }
                         });
@@ -149,7 +149,7 @@ public class LoginFragment extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mPasswordT.setError("Mot de passe incorrect");
+                                    mPasswordT.setError(getString(R.string.error_wrong_password));
                                     dba.dismiss();
                                 }
                             });
@@ -160,7 +160,7 @@ public class LoginFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(mContext,"Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard",Toast.LENGTH_LONG).show();
+                            Toast.makeText(mContext,getString(R.string.error_not_connected),Toast.LENGTH_LONG).show();
                             dba.dismiss();
                         }
                     });
@@ -173,8 +173,8 @@ public class LoginFragment extends Fragment {
     }
     private void showLoadingDlg(){
         final AlertDialog.Builder db = new AlertDialog.Builder(mContext);
-        db.setTitle("Connexion en cours");
-        db.setMessage("Veuillez patienter");
+        db.setTitle(getString(R.string.connecting));
+        db.setMessage(getString(R.string.wait_msg));
         dba = db.create();
         dba.show();
         TextView title = (TextView)dba.findViewById(android.R.id.title);

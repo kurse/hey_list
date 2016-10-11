@@ -106,7 +106,7 @@ public class RegisterFragment extends Fragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mUserName.setError("Ce nom d'utilisateur est déjà pris");
+                                        mUserName.setError(getString(R.string.error_user_exists));
                                     }
                                 });
                             }
@@ -114,7 +114,7 @@ public class RegisterFragment extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mContext, "Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mContext, getString(R.string.error_not_connected), Toast.LENGTH_LONG).show();
                                 }
                             });
                         }
@@ -124,10 +124,10 @@ public class RegisterFragment extends Fragment {
                 t.start();
             }
             else
-                mPassConfirm.setError("Les mots de passes ne correspondent pas");
+                mPassConfirm.setError(getString(R.string.error_password_mismatch));
         }
         else
-            mPassword.setError("Mot de passe trop court (8 caractères minimum)");
+            mPassword.setError(getString(R.string.error_password_short));
     }
     private void addUserServ(final String userName){
         Runnable r = new Runnable() {
@@ -157,7 +157,7 @@ public class RegisterFragment extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mContext, "L'utilisateur a été bien ajouté", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mContext, getString(R.string.add_user_success), Toast.LENGTH_LONG).show();
                                     getFragmentManager().popBackStack("objectsList",0);
                                 }
                             });
@@ -166,7 +166,7 @@ public class RegisterFragment extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mContext, "Erreur", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mContext, getString(R.string.error_title_generic), Toast.LENGTH_LONG).show();
                                 }
                             });
                         }
@@ -184,12 +184,12 @@ public class RegisterFragment extends Fragment {
 //                        });
                     }
                     else
-                        Toast.makeText(mContext,"Erreur",Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext,getString(R.string.error_title_generic),Toast.LENGTH_LONG).show();
                 }catch (Exception e){
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(mContext,"Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard",Toast.LENGTH_LONG).show();
+                            Toast.makeText(mContext,getString(R.string.error_not_connected),Toast.LENGTH_LONG).show();
                         }
                     });
                 }
@@ -224,7 +224,7 @@ public class RegisterFragment extends Fragment {
         });
         if(getArguments()!=null){
             ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
-            mRegister.setText("Enregistrer");
+            mRegister.setText(getString(R.string.create));
             addingNewMode = true;
             mCompanyId = getArguments().getString("orgId");
             mListId = getArguments().getString("listId");

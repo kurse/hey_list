@@ -6,7 +6,7 @@
         android:id="@+id/retry"
         android:paddingLeft="@dimen/activity_vertical_margin"
         android:paddingRight="@dimen/activity_vertical_margin"
-        android:text="réessayer"
+        android:text="@string/retry"
         android:textColor="#FFFF"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

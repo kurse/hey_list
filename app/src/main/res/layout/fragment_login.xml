@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:hint="Nom d'utilisateur"
+            android:hint="@string/username"
             android:drawableLeft="@drawable/icon_username"
             android:background="#FFFF"
             android:textColorHint="#96B7CA6C"
@@ -53,7 +53,7 @@
             android:inputType="textPassword"
             android:drawableLeft="@drawable/icon_password"
             android:drawablePadding="10dip"
-            android:hint="Mot de passe"
+            android:hint="@string/password"
 
 
             android:paddingLeft="@dimen/text_margin"
@@ -70,7 +70,7 @@
         <Button
             android:paddingLeft="@dimen/activity_vertical_margin"
             android:paddingRight="@dimen/activity_vertical_margin"
-            android:text="Connexion"
+            android:text="@string/connect"
             android:textColor="#FFFF"
             android:layout_width="214dp"
             android:layout_height="32dp"
@@ -84,7 +84,7 @@
         <Button
             android:textColor="#FFFF"
             android:background="#91A516"
-            android:text="s'inscrire"
+            android:text="@string/register"
             android:layout_marginBottom="@dimen/activity_horizontal_margin"
 
             android:layout_width="214dp"

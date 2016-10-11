@@ -1,17 +1,38 @@
 <resources>
     <string name="app_name">Hey!List</string>
-    <string name="title_activity_login">Sign in</string>
-
-    <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+    <string name="connect">Login</string>
+    <string name="register">Register</string>
+    <string name="add_users">Add users</string>
+    <string name="new_item">New Item</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="error_not_connected">Connection problem, please retry again later</string>
+    <string name="error_wrong_password">Wrong password</string>
+    <string name="error_password_mismatch">Passwords don\'t match</string>
+    <string name="retry">Retry</string>
+    <string name="password_confirm">Confirm pwd</string>
+    <string name="create_group">Create Group</string>
+    <string name="create">Create</string>
+    <string name="error_user_exists">User already exists</string>
+    <string name="error_user_not_exist">User doesn\'t exist</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="existing">Existing</string>
+    <string name="new_user">New user</string>
+    <string name="back">Back</string>
+    <string name="add_users_title">Add Users</string>
+    <string name="group_name">Group name</string>
+    <string name="create_new_user">Create new</string>
+    <string name="register_title">Register</string>
+    <string name="error_title_generic">Error</string>
+    <string name="add_title">Add</string>
+    <string name="action_add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string name="error_no_group_add">You don\'t have a group to add synchronized objects</string>
+    <string name="error_auth_failed">Failed authentication, please retry again</string>
+    <string name="add_user_success">User successfully added</string>
+    <string name="connecting">Connecting...</string>
+    <string name="wait_msg">Please wait</string>
+    <string name="error_group_exists">This group name is already taken</string>
+    <string name="error_password_short">Password should be at least 8 characters</string>
+    <string name="error_no_group_sync">You don\'t have a group to synchronize with</string>
 </resources>

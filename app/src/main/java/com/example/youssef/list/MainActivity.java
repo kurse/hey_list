@@ -94,14 +94,14 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new DrawerAdapter(MainActivity.this);
         mDrawerList.setAdapter(mAdapter);
         if(mCurUser.getCompany()==null) {
-            mAdapter.addDrawerITem("Créer son groupe");
+            mAdapter.addDrawerITem(getString(R.string.create_group));
         }
         else{
             mAdapter.clearAll();
             if(mCurUser.isCreator())
-                mAdapter.addDrawerITem("Ajouter un utilisateur");
+                mAdapter.addDrawerITem(getString(R.string.add_users));
         }
-        mAdapter.addDrawerITem("Se Déconnecter");
+        mAdapter.addDrawerITem(getString(R.string.disconnect));
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                     FragmentTransaction ft = fm.beginTransaction();
                     Bundle bundle = new Bundle();
                     String optionItem = mDrawerList.getItemAtPosition(position).toString().trim();
-                    if(optionItem.equals("Créer son groupe")){
+                    if(optionItem.equals(getString(R.string.create_group))){
                         Fragment companyCreation = new CompanyCreationFragment();
                         bundle.putString("id", mCurUser.getId());
                         companyCreation.setArguments(bundle);
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                                 .addToBackStack("companyCreation")
                                 .commit();
 
-                    } else if(optionItem.equals("Ajouter un utilisateur")) {
+                    } else if(optionItem.equals(getString(R.string.add_users))) {
                         bundle.putString("listId",mCurUser.getCompany().getmListId());
                         bundle.putString("orgId", mCurUser.getCompany().getmId());
                         bundle.putString("token",mToken);
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                                 .addToBackStack("addUser")
                                 .commit();
                     }
-                    else{
+                    else if(optionItem.equals(getString(R.string.disconnect))){
                         Intent returnToStart = new Intent(getApplicationContext(),LoginActivity.class);
                         disconnect();
                         startActivity(returnToStart);

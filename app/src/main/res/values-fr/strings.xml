@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hey!List</string>
+    <string name="connect">Se connecter</string>
+    <string name="register">S\'enregistrer</string>
+    <string name="add_users">Ajouter des utilisateurs</string>
+    <string name="new_item">Nouvel élément</string>
+    <string name="username">Nom d\'utilisateur</string>
+    <string name="password">Mot de passe</string>
+    <string name="error_not_connected">Problème de connexion, veuillez réessayer plus tard</string>
+    <string name="error_wrong_password">Mauvais mot de passe</string>
+    <string name="error_password_mismatch">Les mots de passe sont différents</string>
+    <string name="retry">Réessayer</string>
+    <string name="password_confirm">Confirmer mdp</string>
+    <string name="create_group">Création de groupe</string>
+    <string name="create">Créer</string>
+    <string name="error_user_exists">Utilisateur existant</string>
+    <string name="error_user_not_exist">Utilisateur introuvable</string>
+    <string name="disconnect">Se déconnecter</string>
+    <string name="existing">Existant</string>
+    <string name="new_user">Nouvel utilisateur</string>
+    <string name="back">Retour</string>
+    <string name="add_users_title">Ajout d\'utilisateurs</string>
+    <string name="group_name">Nom du groupe</string>
+    <string name="create_new_user">Créer nouveau</string>
+    <string name="register_title">Inscription</string>
+    <string name="error_title_generic">Erreur</string>
+    <string name="add_title">Ajout</string>
+    <string name="action_add">Ajouter</string>
+    <string name="cancel">Annuler</string>
+    <string name="error_no_group_add">Vous n\'avez pas encore de groupe pour ajouter des objets synchronisés</string>
+    <string name="error_auth_failed">Erreur d\'authentification, veuillez réessayer</string>
+    <string name="add_user_success">Utilisateur ajouté avec succès</string>
+    <string name="connecting">Connection en cours...</string>
+    <string name="wait_msg">Veuillez patienter</string>
+    <string name="error_group_exists">Ce nom de groupe existe déjà</string>
+    <string name="error_password_short">Le mot de passe doit contenir au moins 8 caractères</string>
+    <string name="error_no_group_sync">Vous n\'avez pas encore de groupe pour synchronizer la liste</string>
+</resources>

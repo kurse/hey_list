@@ -95,12 +95,12 @@ public class CompanyCreationFragment extends Fragment {
                         getActivity().finish();
                     }
                     else
-                        Toast.makeText(mContext,"Error",Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext,getString(R.string.error_group_exists),Toast.LENGTH_LONG).show();
                 }catch (Exception e){
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(mContext,"Error",Toast.LENGTH_LONG).show();
+                            Toast.makeText(mContext,getString(R.string.error_not_connected),Toast.LENGTH_LONG).show();
                         }
                     });
                 }
