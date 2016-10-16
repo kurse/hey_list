@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.example.youssef.list.R;
 import com.example.youssef.list.fragments.ObjectListFragment;
 import com.example.youssef.list.interfaces.Contract;
+import com.example.youssef.list.interfaces.ServerApi;
 import com.example.youssef.list.models.User;
 
 import org.json.JSONArray;
@@ -23,12 +24,22 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
+import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 /**
  * Created by Youssef on 10/8/2016.
  */
 
 public class ListPresenter extends Presenter implements Contract.Presenter<ObjectListFragment>{
 
+    public static String SERVER_URL = "http://137.74.44.134:8080";
     public static String UNKNOWN;
     public static String NOT_CONNECTED;
     public static String FAILED_LOGIN;
@@ -42,6 +53,14 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
     private Boolean isRequest = false;
     private ArrayList<String> items;
     RestTemplate restTemplate = new RestTemplate();
+
+    Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl(SERVER_URL)
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
+    ServerApi serverApi = retrofit.create(ServerApi.class);
 
     Handler.Callback callback = new Handler.Callback() {
         @Override
@@ -208,8 +227,77 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
         }
 //        publish();
     }
+    public void fetchListRetrofit(){
+        if(mCurUser.getCompany()!=null)
+            if(!isRequest) {
+                error = null;
+                items = null;
+                isRequest = true;
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.add("authToken", mToken);
+                String response = "";
+                try {
+                    JSONObject json = new JSONObject();
+                    json.put("listId", mCurUser.getCompany().getmListId());
+//                    String listIdJson = json.toString();
+
+                    final Observable<String> listObservable = serverApi.getList(mToken, json.toString());
+                    Observer listObserver = new Observer() {
+                        @Override
+                        public void onCompleted() {
+                            listObservable.unsubscribeOn(Schedulers.newThread());
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            error = new Error(mFragment.getString(R.string.error_title_generic));
+                            publish();
+                        }
+
+                        @Override
+                        public void onNext(Object o) {
+                            try {
+                                String response = o.toString();
+                                isRequest = false;
+                                Log.d("response", response);
+                                if (!response.equals("invalidToken")) {
+                                    JSONObject jsonResponse = new JSONObject(response);
+                                    JSONArray itemsArray = new JSONArray(jsonResponse.getString("list"));
+                                    items = new ArrayList<>();
+                                    for (int i = 0; i < itemsArray.length(); i++)
+                                        try {
+                                            items.add(itemsArray.getString(i));
+                                        } catch (JSONException e) {
+                                            error = new Error(mFragment.getString(R.string.error_title_generic));
+                                            publish();
+                                        }
+                                    publish();
+
+                                } else {
+                                    SharedPreferences sharedPref = mFragment.getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
+                                    String username = sharedPref.getString("username", "");
+                                    String password = new String(Base64.decode(sharedPref.getString("password", ""), Base64.DEFAULT));
+                                    Message msg = new Message();
+                                    msg.getData().putString("caller", "fetchList");
+                                    login(username, password, msg);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    listObservable.unsubscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(listObserver);
+                }catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+    }
     public void fetchList(){
         if(mCurUser.getCompany()!=null)
+        {
             if(!isRequest) {
                 error = null;
                 items = null;
@@ -270,7 +358,8 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                 };
                 mServerThread = new Thread(mServerRunnable);
                 mServerThread.start();
-            }else{
+            }
+        }else{
                 error = new Error(mFragment.getString(R.string.error_no_group_sync));
                 publish();
             }

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "321808001729",
+    "firebase_url": "https://hey-list.firebaseio.com",
+    "project_id": "hey-list",
+    "storage_bucket": "hey-list.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:321808001729:android:4a9de5b85ef940eb",
+        "android_client_info": {
+          "package_name": "com.hey.youssef.hey.list"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "321808001729-559mnvb8tnt3l5553crdfi0itf2hreej.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvccu5lKQcXA-LBy6N2IstqjwqEsXh2cw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

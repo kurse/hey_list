@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.example.youssef.list.fireBase.FireBaseService;
 import com.example.youssef.list.adapters.DrawerAdapter;
 import com.example.youssef.list.fragments.AddUserFragment;
 import com.example.youssef.list.fragments.CompanyCreationFragment;
@@ -30,16 +31,18 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
     private User mCurUser;
     @BindView(R.id.navList) ListView mDrawerList;
     private DrawerAdapter mAdapter;
     private String mToken;
-
-
+    FireBaseService fbs;
+    FirebaseController fbc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         Toolbar tb = (Toolbar)findViewById(R.id.main_tb);
-
+        fbs = new FireBaseService();
+//        fbc = new FirebaseController(this);
 //        mDrawerList = (ListView)findViewById(R.id.navList);
         if(mCurUser == null)
             mCurUser= new User();
@@ -62,8 +66,15 @@ public class MainActivity extends AppCompatActivity {
             }
             if(jsonResponse.has("token"))
                 mToken = jsonResponse.getString("token");
-            if(jsonResponse.has("company"))
+            if(jsonResponse.has("company")) {
                 mCurUser.setCompany(jsonResponse.getString("company"));
+//                try {
+//                    String addresponse = fbc.addNotificationKey("321808001729",mCurUser.getCompany().getmName(),mCurUser.getId(),
+//                            fbc.getFirebaseToken());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
