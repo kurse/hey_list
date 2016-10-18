@@ -23,20 +23,38 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.youssef.list.R;
+import com.example.youssef.list.interfaces.ServerApi;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
+import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 /**
  * Created by Youssef on 9/24/2016.
  */
 
 public class AddUserFragment extends Fragment{
+    public static String SERVER_URL = "http://137.74.44.134:8080";
 
-
+    Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl(SERVER_URL)
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
+    ServerApi serverApi = retrofit.create(ServerApi.class);
     public static int ADD_NEW_USER = 1;
     private String mToken;
     private String mCompanyId;
@@ -55,74 +73,61 @@ public class AddUserFragment extends Fragment{
         return inflater.inflate(R.layout.fragment_add_user,container,false);
     }
 
-    private void addUserServ(final String userName){
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
+    private void addUserRetrofit(String userName){
+        try {
+            JSONObject json = new JSONObject();
 
-                RestTemplate restTemplate = new RestTemplate();
-                String url = "http://137.74.44.134:8080/addUserGroup";
+            json.put("orgId", mCompanyId);
+            json.put("listId", mListId);
+            json.put("userName", userName);
 
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.add("authToken",mToken);
-                String response="";
-                try {
-                    JSONObject json = new JSONObject();
-                    json.put("orgId",mCompanyId);
-                    json.put("listId",mListId);
-                    json.put("userName",userName);
-                    String listIdJson = json.toString();
-                    HttpEntity<String> entity = new HttpEntity<>(listIdJson,headers);
-
-                    response = restTemplate.postForObject(url, entity, String.class);
-                    Log.d("response", response);
-                    if (!response.equals("exists")) {
-                        JSONObject jsonResponse = new JSONObject(response);
-                        if(jsonResponse.has("result"))
-                            if(jsonResponse.getString("result").equals("ok")) {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(mContext, getString(R.string.add_user_success), Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                            }
-                        else {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(mContext, getString(R.string.error_user_not_exist), Toast.LENGTH_LONG).show();
-                                    }
-                                });                            }
-//                        getActivity().runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                for(int i=0;i<array.length();i++)
-//                                    try {
-//                                        if(!mObjectsAdapter.contains(array.getString(i)))
-//                                            mObjectsAdapter.addItem(array.getString(i));
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                            }
-//                        });
-                    }
-                    else {
-                        Toast.makeText(mContext, getString(R.string.error_title_generic), Toast.LENGTH_LONG).show();
-                    }
-                }catch (Exception e){
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mContext,getString(R.string.error_title_generic),Toast.LENGTH_LONG).show();
-                        }
-                    });
+            final Observable<String> addUserObservable = serverApi.addUser(mToken, json.toString());
+            Observer addUserObserver = new Observer() {
+                @Override
+                public void onCompleted() {
+                    addUserObservable.unsubscribeOn(Schedulers.newThread());
                 }
-            }
-        };
-        Thread t = new Thread(r);
-        t.start();
+
+                @Override
+                public void onError(Throwable e) {
+                    Toast.makeText(mContext, getString(R.string.error_not_connected), Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onNext(Object o) {
+                    String response = o.toString();
+                    JSONObject jsonResponse = null;
+                    try {
+                        jsonResponse = new JSONObject(response);
+                        if(jsonResponse.getString("result").equals("ok")) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(mContext, getString(R.string.add_user_success), Toast.LENGTH_LONG).show();
+                                    getFragmentManager().popBackStack("objectsList",0);
+                                }
+                            });
+                        }
+                        else {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(mContext, getString(R.string.error_title_generic), Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            };
+            addUserObservable.subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(addUserObserver);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void showAddExistingDlg(){
@@ -140,7 +145,7 @@ public class AddUserFragment extends Fragment{
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                addUserServ(objectT.getText().toString());
+                addUserRetrofit(objectT.getText().toString());
             }
         });
         db.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {

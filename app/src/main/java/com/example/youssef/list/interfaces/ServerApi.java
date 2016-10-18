@@ -20,8 +20,27 @@ public interface ServerApi {
     Observable<String> auth(@Body String user);
 
     @Headers("Content-Type: application/json")
-    @POST("/getList")
-    Observable<String> getList(@Header("token") String token, @Body String json);
+    @POST("/register")
+    Observable<String> register(@Body String user);
 
+    @Headers("Content-Type: application/json")
+    @POST("/newgroup")
+    Observable<String> newGroup(@Body String companyName);
+
+    @Headers("Content-Type: application/json")
+    @POST("/addUserGroup")
+    Observable<String> addUser(@Header("authToken") String token, @Body String json);
+
+    @Headers("Content-Type: application/json")
+    @POST("/getList")
+    Observable<String> getList(@Header("authToken") String token, @Body String json);
+
+    @Headers("Content-Type: application/json")
+    @POST("/addItem")
+    Observable<String> addItem(@Header("authToken") String token, @Body String json);
+
+    @Headers("Content-Type: application/json")
+    @POST("/removeItem")
+    Observable<String> removeItem(@Header("authToken") String token, @Body String json);
 
 }

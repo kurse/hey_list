@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
@@ -18,8 +19,10 @@ import android.widget.Toast;
 
 import com.example.youssef.list.MainActivity;
 import com.example.youssef.list.R;
+import com.example.youssef.list.interfaces.ServerApi;
 import com.example.youssef.list.models.User;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
@@ -29,8 +32,18 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
+import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Youssef on 8/20/2016.
@@ -39,6 +52,7 @@ import butterknife.ButterKnife;
 public class RegisterFragment extends Fragment {
 
     public static int ADD_NEW_USER = 1;
+    public static String SERVER_URL = "http://137.74.44.134:8080";
 
     RestTemplate restTemplate = new RestTemplate();
     private String mToken;
@@ -51,6 +65,14 @@ public class RegisterFragment extends Fragment {
     @BindView(R.id.register_password) EditText mPassword;
     @BindView(R.id.password_confirm) EditText mPassConfirm;
 
+    Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl(SERVER_URL)
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
+    ServerApi serverApi = retrofit.create(ServerApi.class);
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,98 +83,89 @@ public class RegisterFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_register,container,false);
     }
-    private void register(){
-        if(mPassword.getText().toString().length()>=8) {
-            if(mPassword.getText().toString().equals(mPassConfirm.getText().toString())) {
-                Runnable r = new Runnable() {
-                    @Override
-                    public void run() {
+    private void registerRetrofit(){
 
-                        User user = new User(mUserName.getText().toString(), mPassword.getText().toString());
+            User user = new User(mUserName.getText().toString(), mPassword.getText().toString());
+            String json = null;
+            try {
+                json = user.toJsonObject().toString();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return;
+            }
+            final Observable<String> registerObservable = serverApi.register(json.toString());
+            Observer registerObserver = new Observer() {
+                @Override
+                public void onCompleted() {
+                    registerObservable.unsubscribeOn(Schedulers.newThread());
+                }
 
+                @Override
+                public void onError(Throwable e) {
+                    Toast.makeText(mContext, getString(R.string.error_not_connected), Toast.LENGTH_LONG).show();
+                }
 
-                        String url = "http://137.74.44.134:8080/register";
-                        String requestJson = null;
-                        try {
-                            requestJson = user.toJsonObject().toString();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        HttpHeaders headers = new HttpHeaders();
-                        headers.setContentType(MediaType.APPLICATION_JSON);
-
-                        HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-                        String response = "";
-                        try {
-                            response = restTemplate.postForObject(url, entity, String.class);
-                            Log.d("response", response);
-                            if (!response.equals("exists")) {
-                                if (addingNewMode) {
-                                    addUserServ(mUserName.getText().toString());
-                                } else {
-                                    Intent main = new Intent(mContext, MainActivity.class);
-                                    SharedPreferences prefs = getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = prefs.edit();
-                                    editor.putString("username", mUserName.getText().toString());
-                                    editor.putString("password", Base64.encodeToString(mPassword.getText().toString().getBytes(), Base64.DEFAULT));
-                                    editor.putBoolean("connected", true);
-                                    editor.commit();
-                                    main.putExtra("response", response);
-                                    startActivity(main);
-                                    getActivity().finish();
-                                }
-
+                @Override
+                public void onNext(Object o) {
+                        String response = o.toString();
+                        if (!response.equals("exists")) {
+                            if (addingNewMode) {
+                                addUserRetrofit(mUserName.getText().toString());
                             } else {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mUserName.setError(getString(R.string.error_user_exists));
-                                    }
-                                });
+                                Intent main = new Intent(mContext, MainActivity.class);
+                                SharedPreferences prefs = getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.putString("username", mUserName.getText().toString());
+                                editor.putString("password", Base64.encodeToString(mPassword.getText().toString().getBytes(), Base64.DEFAULT));
+                                editor.putBoolean("connected", true);
+                                editor.commit();
+                                main.putExtra("response", response);
+                                startActivity(main);
+                                getActivity().finish();
                             }
-                        } catch (Exception e) {
+
+                        } else {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mContext, getString(R.string.error_not_connected), Toast.LENGTH_LONG).show();
+                                    mUserName.setError(getString(R.string.error_user_exists));
                                 }
                             });
                         }
-                    }
-                };
-                Thread t = new Thread(r);
-                t.start();
-            }
-            else
-                mPassConfirm.setError(getString(R.string.error_password_mismatch));
-        }
-        else
-            mPassword.setError(getString(R.string.error_password_short));
+                }
+            };
+            registerObservable.subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(registerObserver);
+
     }
-    private void addUserServ(final String userName){
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
 
-                RestTemplate restTemplate = new RestTemplate();
-                String url = "http://137.74.44.134:8080/addUserGroup";
+    private void addUserRetrofit(String userName){
+        try {
+            JSONObject json = new JSONObject();
 
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.add("authToken",mToken);
-                String response="";
-                try {
-                    JSONObject json = new JSONObject();
-                    json.put("orgId",mCompanyId);
-                    json.put("listId",mListId);
-                    json.put("userName",userName);
-                    String listIdJson = json.toString();
-                    HttpEntity<String> entity = new HttpEntity<>(listIdJson,headers);
+            json.put("orgId", mCompanyId);
+            json.put("listId", mListId);
+            json.put("userName", userName);
 
-                    response = restTemplate.postForObject(url, entity, String.class);
-                    Log.d("response", response);
-                    if (!response.equals("exists")) {
-                        JSONObject jsonResponse = new JSONObject(response);
+            final Observable<String> addUserObservable = serverApi.addUser(mToken, json.toString());
+            Observer addUserObserver = new Observer() {
+                @Override
+                public void onCompleted() {
+                    addUserObservable.unsubscribeOn(Schedulers.newThread());
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    Toast.makeText(mContext, getString(R.string.error_not_connected), Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onNext(Object o) {
+                    String response = o.toString();
+                    JSONObject jsonResponse = null;
+                    try {
+                        jsonResponse = new JSONObject(response);
                         if(jsonResponse.getString("result").equals("ok")) {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -170,33 +183,18 @@ public class RegisterFragment extends Fragment {
                                 }
                             });
                         }
-//                        getActivity().runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                for(int i=0;i<array.length();i++)
-//                                    try {
-//                                        if(!mObjectsAdapter.contains(array.getString(i)))
-//                                            mObjectsAdapter.addItem(array.getString(i));
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                            }
-//                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                    else
-                        Toast.makeText(mContext,getString(R.string.error_title_generic),Toast.LENGTH_LONG).show();
-                }catch (Exception e){
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mContext,getString(R.string.error_not_connected),Toast.LENGTH_LONG).show();
-                        }
-                    });
+
                 }
-            }
-        };
-        Thread t = new Thread(r);
-        t.start();
+            };
+            addUserObservable.subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(addUserObserver);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
@@ -212,7 +210,7 @@ public class RegisterFragment extends Fragment {
         mRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                register();
+                registerRetrofit();
             }
         });
         Button back = (Button)view.findViewById(R.id.back);

@@ -66,12 +66,12 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
         @Override
         public boolean handleMessage(Message msg) {
             if(msg.getData().getString("caller").equals("fetchList"))
-                fetchList();
+                fetchListRetrofit();
             else if(msg.getData().getString("caller").equals("addItem")){
-                addItemDB(msg.getData().getString("item"));
+                addItemRetrofit(msg.getData().getString("item"));
             }
             else if(msg.getData().getString("caller").equals("removeItem")){
-                removeItemDB(msg.getData().getString("item"));
+                removeItemRetrofit(msg.getData().getString("item"));
             }
             return true;
         }
@@ -86,6 +86,78 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
     private Throwable error;
     private ObjectListFragment mFragment;
 
+    public void removeItemRetrofit(final String item){
+        if(!isRequest) {
+            error = null;
+            items = null;
+            isRequest = true;
+            try {
+                JSONObject json = new JSONObject();
+                json.put("listId",mCurUser.getCompany().getmListId());
+                json.put("item",item);
+
+                final Observable<String> removeObservable = serverApi.removeItem(mToken, json.toString());
+                Observer removeObserver = new Observer() {
+                    @Override
+                    public void onCompleted() {
+                        isRequest=false;
+                        removeObservable.unsubscribeOn(Schedulers.newThread());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        isRequest=false;
+                        if(e.getMessage().contains("ailed to connect")){
+                            error = new Error(mFragment.getString(R.string.error_not_connected));
+                        } else{
+                            error = new Error(mFragment.getString(R.string.error_title_generic));
+                        }
+                        publish();
+                        isRequest = false;
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+                        try {
+                            error = null;
+                            String response = o.toString();
+                            isRequest = false;
+                            Log.d("response", response);
+                            if (!response.equals(ERROR_TOKEN_DETECT)) {
+                                JSONObject jsonResponse = new JSONObject(response);
+                                final JSONArray itemsArray = new JSONArray(jsonResponse.getString("list"));
+                                items = new ArrayList<>();
+                                for (int i = 0; i < itemsArray.length(); i++)
+                                    try {
+                                        items.add(itemsArray.getString(i));
+                                    } catch (JSONException e) {
+                                        error = new Error(mFragment.getString(R.string.error_title_generic));
+                                        publish();
+                                    }
+                                publish();
+                            } else{
+                                Message msg = new Message();
+                                msg.getData().putString("caller","removeItem");
+                                msg.getData().putString("item",item);
+                                SharedPreferences sharedPref = mFragment.getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
+                                String username = sharedPref.getString("username","");
+                                String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
+                                loginRetrofit(username, password, msg);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                removeObservable.subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(removeObserver);
+            }catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
     public void removeItemDB(final String item){
         Runnable r = new Runnable() {
             @Override
@@ -125,7 +197,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                         SharedPreferences sharedPref = mFragment.getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
                         String username = sharedPref.getString("username","");
                         String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
-                        login(username, password, msg);
+                        loginRetrofit(username, password, msg);
                     }
 //                        Toast.makeText(mContext,"Erreur de connexion",Toast.LENGTH_LONG).show();
                 }catch (Exception e){
@@ -138,6 +210,84 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
         t.start();
     }
 
+    public void addItemRetrofit(final String item){
+        if(!isRequest) {
+            error = null;
+            items = null;
+            isRequest = true;
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.add("authToken", mToken);
+            String response = "";
+            try {
+                JSONObject json = new JSONObject();
+                json.put("listId",mCurUser.getCompany().getmListId());
+                json.put("item",item);
+
+                final Observable<String> addObservable = serverApi.addItem(mToken, json.toString());
+                Observer listObserver = new Observer() {
+                    @Override
+                    public void onCompleted() {
+                        isRequest=false;
+                        addObservable.unsubscribeOn(Schedulers.newThread());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        isRequest=false;
+                        if(e.getMessage().contains("ailed to connect")){
+                            error = new Error(mFragment.getString(R.string.error_not_connected));
+                        } else{
+                            error = new Error(mFragment.getString(R.string.error_title_generic));
+                        }
+                        publish();
+                        isRequest = false;
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+                        try {
+                            error = null;
+                            String response = o.toString();
+                            isRequest = false;
+                            Log.d("response", response);
+                            if (!response.equals(ERROR_TOKEN_DETECT)) {
+
+                                JSONObject jsonResponse = new JSONObject(response);
+                                final JSONArray itemsArray = new JSONArray(jsonResponse.getString("list"));
+
+                                items = new ArrayList<>();
+                                for (int i = 0; i < itemsArray.length(); i++)
+                                    try {
+                                        items.add(itemsArray.getString(i));
+                                    } catch (JSONException e) {
+                                        error = new Error(mFragment.getString(R.string.error_title_generic));
+                                        publish();
+                                    }
+                                publish();
+                            }
+                            else{
+                                Message msg = new Message();
+                                msg.getData().putString("caller","addItem");
+                                msg.getData().putString("item",item);
+                                SharedPreferences sharedPref = mFragment.getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
+                                String username = sharedPref.getString("username","");
+                                String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
+                                loginRetrofit(username, password, msg);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                addObservable.subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(listObserver);
+            }catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     public void addItemDB(final String item){
         Runnable r = new Runnable() {
             @Override
@@ -179,7 +329,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                         SharedPreferences sharedPref = mFragment.getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
                         String username = sharedPref.getString("username","");
                         String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
-                        login(username, password, msg);
+                        loginRetrofit(username, password, msg);
 //                        publish();
                     }
 //                        Toast.makeText(mContext,"Erreur de connexion",Toast.LENGTH_LONG).show();
@@ -193,7 +343,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                         Message msg = new Message();
                         msg.getData().putString("caller","addItem");
                         msg.getData().putString("item",item);
-                        login(username, password, msg);
+                        loginRetrofit(username, password, msg);
 
                     }
 //                        error = new Error(mFragment.getString(R.string.error_title_generic));
@@ -217,7 +367,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                     mToken = mFragment.mToken;
                 }
                 if(mCurUser.getCompany()!=null)
-                    fetchList();
+                    fetchListRetrofit();
             }
         }
         else {
@@ -246,18 +396,25 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                     Observer listObserver = new Observer() {
                         @Override
                         public void onCompleted() {
+                            isRequest=false;
                             listObservable.unsubscribeOn(Schedulers.newThread());
                         }
 
                         @Override
                         public void onError(Throwable e) {
-                            error = new Error(mFragment.getString(R.string.error_title_generic));
+                            isRequest=false;
+                            if(e.getMessage().contains("ailed to connect")){
+                                error = new Error(mFragment.getString(R.string.error_not_connected));
+                            } else{
+                                error = new Error(mFragment.getString(R.string.error_title_generic));
+                            }
                             publish();
                         }
 
                         @Override
                         public void onNext(Object o) {
                             try {
+                                error = null;
                                 String response = o.toString();
                                 isRequest = false;
                                 Log.d("response", response);
@@ -280,14 +437,14 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                                     String password = new String(Base64.decode(sharedPref.getString("password", ""), Base64.DEFAULT));
                                     Message msg = new Message();
                                     msg.getData().putString("caller", "fetchList");
-                                    login(username, password, msg);
+                                    loginRetrofit(username, password, msg);
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                         }
                     };
-                    listObservable.unsubscribeOn(Schedulers.newThread())
+                    listObservable.subscribeOn(Schedulers.newThread())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(listObserver);
                 }catch (JSONException e) {
@@ -337,7 +494,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                                 String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
                                 Message msg = new Message();
                                 msg.getData().putString("caller","fetchList");
-                                login(username, password,msg);
+                                loginRetrofit(username, password,msg);
 //                                SharedPreferences sharedPref = mFragment.getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
 //                                String username = sharedPref.getString("username", "");
 //                                String password = new String(Base64.decode(sharedPref.getString("password", ""), Base64.DEFAULT));
@@ -364,6 +521,152 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                 publish();
             }
 
+    }
+    public void loginRetrofit(String username, String password, final Message callAfter){
+        if(!isRequest){
+            error = null;
+            User user = new User(username,password);
+            try {
+//                    HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+//                    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+//                    OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+                JSONObject json = user.toJsonObject();
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(SERVER_URL)
+                        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                        .addConverterFactory(ScalarsConverterFactory.create())
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                ServerApi serverApi = retrofit.create(ServerApi.class);
+                final Observable<String> auth = serverApi.auth(json.toString());
+                Observer responseObserver = new Observer() {
+                    @Override
+                    public void onCompleted() {
+                        auth.unsubscribeOn(Schedulers.newThread());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if(e.getMessage().contains("ailed to connect")){
+                            error = new Error(mFragment.getString(R.string.error_not_connected));
+                        } else{
+                            error = new Error(mFragment.getString(R.string.error_title_generic));
+                        }
+                        publish();
+
+
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+                        if(mFragment.dbRetry.isShowing())
+                            mFragment.dbRetry.dismiss();
+                        error = null;
+                        String responseStr = o.toString();
+                        JSONObject responseJson = null;
+                        try {
+                            responseJson = new JSONObject(responseStr);
+                            if (responseJson.has("token")) {
+                                mToken = responseJson.getString("token");
+                                callback.handleMessage(callAfter);
+                            } else {
+                                error = new Error(FAILED_LOGIN);
+                                publish();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                };
+                auth.subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(responseObserver);
+
+//                    auth.enqueue(new Callback<String>() {
+//                        @Override
+//                        public void onResponse(Call<String> call, Response<String> response) {
+//                            String responseStr = response.body();
+//                            if(responseStr.equals("none")) {
+//                                getActivity().runOnUiThread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        Toast.makeText(mContext,getString(R.string.error_user_not_exist),Toast.LENGTH_LONG).show();
+//                                        dba.dismiss();
+//                                    }
+//                                });
+//                            }
+//                            else{
+//                                if (!responseStr.equals("fail")) {
+//                                    Intent main = new Intent(mContext, MainActivity.class);
+//                                    main.putExtra("response", responseStr);
+//                                    SharedPreferences prefs = getActivity().getSharedPreferences("account",Context.MODE_PRIVATE);
+//                                    SharedPreferences.Editor editor = prefs.edit();
+//                                    editor.putString("username", username);
+//                                    editor.putString("password", Base64.encodeToString(password.getBytes(), Base64.DEFAULT));
+//                                    editor.putBoolean("connected",true);
+//                                    editor.commit();
+//                                    dba.dismiss();
+//                                    startActivity(main);
+//                                    getActivity().finish();
+//                                } else{
+//                                    getActivity().runOnUiThread(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            mPasswordT.setError(getString(R.string.error_wrong_password));
+//                                            dba.dismiss();
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call<String> call, Throwable t) {
+//                            Log.d("throwable", t.getMessage());
+//
+//                        }
+//
+//                    });
+//                    String responseStr = response.body();
+//                    if(responseStr.equals("none")) {
+//                        getActivity().runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Toast.makeText(mContext,getString(R.string.error_user_not_exist),Toast.LENGTH_LONG).show();
+//                                dba.dismiss();
+//                            }
+//                        });
+//                    }
+//                    else{
+//                        if (!responseStr.equals("fail")) {
+//
+//                            Intent main = new Intent(mContext, MainActivity.class);
+//                            main.putExtra("response", responseStr);
+//                            SharedPreferences prefs = getActivity().getSharedPreferences("account",Context.MODE_PRIVATE);
+//                            SharedPreferences.Editor editor = prefs.edit();
+//                            editor.putString("username", username);
+//                            editor.putString("password", Base64.encodeToString(password.getBytes(), Base64.DEFAULT));
+//                            editor.putBoolean("connected",true);
+//                            editor.commit();
+//                            dba.dismiss();
+//                            startActivity(main);
+//                            getActivity().finish();
+//                        } else{
+//                            getActivity().runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    mPasswordT.setError(getString(R.string.error_wrong_password));
+//                                    dba.dismiss();
+//                                }
+//                            });
+//                        }
+//                    }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
     public void login(final String username, final String password, final Message callAfter){
         if(!isRequest) {

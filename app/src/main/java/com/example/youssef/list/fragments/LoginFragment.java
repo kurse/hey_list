@@ -119,8 +119,8 @@ public class LoginFragment extends Fragment {
 
                 User user = new User(username,password);
                 try {
-                    HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-                    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+//                    HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+//                    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 //                    OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
                     JSONObject json = user.toJsonObject();
                     Retrofit retrofit = new Retrofit.Builder()
@@ -139,7 +139,12 @@ public class LoginFragment extends Fragment {
 
                         @Override
                         public void onError(Throwable e) {
-
+                            if(e.getMessage().contains("ailed to connect")){
+                                Toast.makeText(mContext,getString(R.string.error_not_connected),Toast.LENGTH_LONG).show();
+                            } else{
+                                Toast.makeText(mContext,getString(R.string.error_title_generic),Toast.LENGTH_LONG).show();
+                            }
+                            dba.dismiss();
 
                         }
 

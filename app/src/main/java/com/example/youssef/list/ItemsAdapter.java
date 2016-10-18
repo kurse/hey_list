@@ -82,7 +82,7 @@ public class ItemsAdapter extends BaseAdapter {
         remove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.removeItemDB(data.get(position));
+                presenter.removeItemRetrofit(data.get(position));
 //                data.remove(position);
 //                notifyDataSetChanged();
             }

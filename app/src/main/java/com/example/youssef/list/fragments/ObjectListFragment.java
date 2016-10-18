@@ -57,6 +57,7 @@ import butterknife.ButterKnife;
 
 public class ObjectListFragment extends Fragment implements Contract.View<ArrayList<String>> {
 
+
     private PresenterCache presenterCache =
             PresenterCache.getInstance();
     private PresenterFactory<ListPresenter> presenterFactory =
@@ -76,7 +77,7 @@ public class ObjectListFragment extends Fragment implements Contract.View<ArrayL
     Thread mServerThread;
     Boolean isRequest = false;
     AlertDialog dba;
-    Dialog dbRetry;
+    public Dialog dbRetry;
     public String mToken;
     public User mCurUser;
     Context mContext;
@@ -220,7 +221,7 @@ public class ObjectListFragment extends Fragment implements Contract.View<ArrayL
             public void onClick(DialogInterface dialog, int which) {
                 String item = objectT.getText().toString();
 //                mObjectsAdapter.addItem(item);
-                presenter.addItemDB(item);
+                presenter.addItemRetrofit(item);
             }
         });
         db.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -246,7 +247,7 @@ public class ObjectListFragment extends Fragment implements Contract.View<ArrayL
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.action_refresh:
-                presenter.fetchList();
+                presenter.fetchListRetrofit();
                 return true;
             case R.id.action_add:
                 if(mCurUser.getCompany()!=null)
@@ -302,13 +303,13 @@ public class ObjectListFragment extends Fragment implements Contract.View<ArrayL
                 retryButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
                         SharedPreferences sharedPref = getActivity().getSharedPreferences("account",Context.MODE_PRIVATE);
                         String username = sharedPref.getString("username","");
                         String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
                         Message msg = new Message();
                         msg.getData().putString("caller","fetchList");
-                        presenter.login(username, password,msg);
-                        dbRetry.dismiss();
+                        presenter.loginRetrofit(username, password,msg);
                     }
                 });
                 TextView title = (TextView)dbRetry.findViewById(android.R.id.title);
