@@ -1,11 +1,15 @@
 package com.example.youssef.list;
 
 import android.content.Context;
+import android.graphics.Paint;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.example.youssef.list.fragments.ObjectListFragment;
@@ -21,6 +25,7 @@ public class ItemsAdapter extends BaseAdapter {
 
     Context context;
     ArrayList<String> data = new ArrayList<>();
+    ArrayList<Boolean> checkedItems = new ArrayList<>();
     private static LayoutInflater inflater = null;
     private ObjectListFragment mOLFragment;
     private ListPresenter presenter;
@@ -32,6 +37,7 @@ public class ItemsAdapter extends BaseAdapter {
     }
     public void clear(){
         data.clear();
+        checkedItems.clear();
         notifyDataSetChanged();
     }
     public ItemsAdapter(Context context, ListPresenter presenter){
@@ -48,8 +54,9 @@ public class ItemsAdapter extends BaseAdapter {
 //                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 //    }
 
-    public void addItem(final String item) {
+    public void addItem(final String item, boolean checked) {
         data.add(item);
+        checkedItems.add(checked);
         notifyDataSetChanged();
     }
     @Override
@@ -76,8 +83,25 @@ public class ItemsAdapter extends BaseAdapter {
         View vi = convertView;
         if (vi == null)
             vi = inflater.inflate(R.layout.fragment_object, null);
-        TextView text = (TextView) vi.findViewById(R.id.object_item_text);
+        final TextView text = (TextView) vi.findViewById(R.id.object_item_text);
         text.setText(data.get(position));
+        final AppCompatCheckBox checkBox = (AppCompatCheckBox)vi.findViewById(R.id.check);
+        checkBox.setChecked(checkedItems.get(position));
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkedItems.set(position,!checkedItems.get(position));
+                if(checkedItems.get(position))
+                    text.setPaintFlags(text.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                else
+                    text.setPaintFlags(text.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                presenter.checkRetrofit(data.get(position),checkedItems.get(position));
+            }
+        });
+        if(checkedItems.get(position))
+            text.setPaintFlags(text.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        else
+            text.setPaintFlags(text.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         Button remove = (Button)vi.findViewById(R.id.remove_object_item);
         remove.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +111,26 @@ public class ItemsAdapter extends BaseAdapter {
 //                notifyDataSetChanged();
             }
         });
+        AppCompatCheckBox cross = (AppCompatCheckBox) vi.findViewById(R.id.check);
+        cross.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    checkItem(position);
+                }
+                else{
+                    unCheckItem(position);
+                }
+            }
+        });
         return vi;
+    }
+
+    private void unCheckItem(int position) {
+        presenter.checkItem(position);
+    }
+
+    private void checkItem(int position) {
+        presenter.uncheckItem(position);
     }
 }

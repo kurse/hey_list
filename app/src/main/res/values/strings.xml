@@ -35,4 +35,23 @@
     <string name="error_group_exists">This group name is already taken</string>
     <string name="error_password_short">Password should be at least 8 characters</string>
     <string name="error_no_group_sync">You don\'t have a group to synchronize with</string>
+    <string name="just">" just"</string>
+    <string name="added">" added "</string>
+    <string name="new_item_title">New Item</string>
+    <string name="checked">" checked "</string>
+    <string name="removed">" removed  "</string>
+    <string name="unchecked">" unchecked "</string>
+    <string name="unchecked_title">Item Unchecked</string>
+    <string name="removed_title">Item Removed</string>
+    <string name="checked_title">Item Checked</string>
+    <string name="to_the_list">" to the list"</string>
+    <string name="from_the_list">" from the list"</string>
+    <string name="on_the_list">" on the list"</string>
+    <string name="confirm">Confirm</string>
+    <string name="change_pwd">Change</string>
+    <string name="email_address">E-mail address</string>
+    <string name="empty_error">can\'t be empty</string>
+    <string name="error_email_invalid">this e-mail adress is not valid</string>
+    <string name="facebook_app_id">1802084513343070</string>
+
 </resources>

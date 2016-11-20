@@ -10,8 +10,8 @@ import java.util.ArrayList;
 
 public class Contract {
 
-    public interface View<T> {
-        public void onNext(T t);
+    public interface View<T, T2> {
+        public void onNext(T t, T2 t2);
         public void showError(String error);
     }
 

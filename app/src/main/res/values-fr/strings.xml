@@ -36,4 +36,21 @@
     <string name="error_group_exists">Ce nom de groupe existe déjà</string>
     <string name="error_password_short">Le mot de passe doit contenir au moins 8 caractères</string>
     <string name="error_no_group_sync">Vous n\'avez pas encore de groupe pour synchronizer la liste</string>
+    <string name="just">" vient"</string>
+    <string name="added">" d'ajouter "</string>
+    <string name="new_item_title">Nouvel Element</string>
+    <string name="checked">" de barrer "</string>
+    <string name="removed">\" de supprimer \"</string>
+    <string name="unchecked">" débarrer "</string>
+    <string name="unchecked_title">Element Débarré</string>
+    <string name="removed_title">Element Supprimé</string>
+    <string name="checked_title">Element Barré</string>
+    <string name="to_the_list">" à la liste"</string>
+    <string name="from_the_list">" de la liste"</string>
+    <string name="on_the_list">" dans la liste"</string>
+    <string name="confirm">Confirmer</string>
+    <string name="change_pwd">Changer</string>
+    <string name="email_address">Address e-mail</string>
+    <string name="empty_error">champ vide</string>
+    <string name="error_email_invalid">cette adresse e-mail est non valide</string>
 </resources>

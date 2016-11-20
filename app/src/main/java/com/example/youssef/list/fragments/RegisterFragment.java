@@ -1,13 +1,17 @@
 package com.example.youssef.list.fragments;
 
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,7 +56,6 @@ import rx.schedulers.Schedulers;
 public class RegisterFragment extends Fragment {
 
     public static int ADD_NEW_USER = 1;
-    public static String SERVER_URL = "http://137.74.44.134:8080";
 
     RestTemplate restTemplate = new RestTemplate();
     private String mToken;
@@ -63,10 +66,11 @@ public class RegisterFragment extends Fragment {
     @BindView(R.id.create_account) Button mRegister;
     @BindView(R.id.register_username) EditText mUserName;
     @BindView(R.id.register_password) EditText mPassword;
+    @BindView(R.id.email_address) EditText mEmailAddress;
     @BindView(R.id.password_confirm) EditText mPassConfirm;
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(SERVER_URL)
+            .baseUrl(MainActivity.SERVER_URL)
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
@@ -85,7 +89,7 @@ public class RegisterFragment extends Fragment {
     }
     private void registerRetrofit(){
 
-            User user = new User(mUserName.getText().toString(), mPassword.getText().toString());
+            User user = new User(mUserName.getText().toString(), mPassword.getText().toString(), mEmailAddress.getText().toString());
             String json = null;
             try {
                 json = user.toJsonObject().toString();
@@ -196,6 +200,13 @@ public class RegisterFragment extends Fragment {
             e.printStackTrace();
         }
     }
+    public final static boolean isValidEmail(CharSequence target) {
+        if (TextUtils.isEmpty(target)) {
+            return false;
+        } else {
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+        }
+    }
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -207,10 +218,61 @@ public class RegisterFragment extends Fragment {
 //        mUserName = (EditText) view.findViewById(R.id.username);
 //        mRegister = (Button) view.findViewById(R.id.create_account);
         mContext = view.getContext();
+        if(getArguments()!=null) {
+            if (!getArguments().containsKey("mode")) {
+                ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+                mRegister.setText(getString(R.string.create));
+                addingNewMode = true;
+                mCompanyId = getArguments().getString("orgId");
+                mListId = getArguments().getString("listId");
+                mToken = getArguments().getString("token");
+            }else {
+            }
+
+        }
         mRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                registerRetrofit();
+                boolean register = true;
+                if(mUserName.getText().length()==0){
+                    register = false;
+                    mUserName.setError(getResources().getString(R.string.empty_error));
+                    mUserName.requestFocus();
+                }
+                else if(mPassword.getText().toString().length()<8){
+                    register = false;
+                    mPassword.setError(getResources().getString(R.string.error_password_short));
+                    mPassword.requestFocus();
+                }
+                else if(!mPassword.getText().toString().equals(mPassConfirm.getText().toString())){
+                    register = false;
+                    mPassword.setError(getResources().getString(R.string.error_password_mismatch));
+                    mPassword.requestFocus();
+                }
+                else if(!isValidEmail(mEmailAddress.getText().toString())){
+                    register = false;
+                    mEmailAddress.setError(getResources().getString(R.string.error_email_invalid));
+                    mEmailAddress.requestFocus();
+                }
+                if(register){
+                    AlertDialog.Builder ab = new AlertDialog.Builder(getActivity());
+                    ab.setTitle("E-mail Validation");
+                    ab.setMessage("The e-mail is used to send you a reminder of your login informations, do you confirm it's a valid e-mail?");
+                    ab.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            registerRetrofit();
+                        }
+                    });
+                    ab.setNegativeButton(getResources().getString(R.string.back), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    });
+                    ab.show();
+                }
+//                    registerRetrofit();
             }
         });
         Button back = (Button)view.findViewById(R.id.back);
@@ -220,14 +282,7 @@ public class RegisterFragment extends Fragment {
                 getFragmentManager().popBackStack();
             }
         });
-        if(getArguments()!=null){
-            ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
-            mRegister.setText(getString(R.string.create));
-            addingNewMode = true;
-            mCompanyId = getArguments().getString("orgId");
-            mListId = getArguments().getString("listId");
-            mToken = getArguments().getString("token");
-        }
+
 
     }
     @Override

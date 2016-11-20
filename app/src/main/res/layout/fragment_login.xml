@@ -92,4 +92,12 @@
             tools:layout_editor_absoluteX="95dp"
             tools:layout_editor_absoluteY="152dp"
             android:id="@+id/register" />
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_fb"
+        android:layout_width="214dp"
+        android:layout_height="70dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"/>
 </LinearLayout>

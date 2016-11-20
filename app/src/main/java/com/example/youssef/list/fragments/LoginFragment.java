@@ -25,6 +25,14 @@ import com.example.youssef.list.MainActivity;
 import com.example.youssef.list.R;
 import com.example.youssef.list.interfaces.ServerApi;
 import com.example.youssef.list.models.User;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.Profile;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,9 +66,13 @@ import rx.schedulers.Schedulers;
  */
 
 public class LoginFragment extends Fragment {
-    public static String SERVER_URL = "http://137.74.44.134:8080";
+
+    public static int LOGIN_EMAIL = 0;
+    public static int LOGIN_FACEBOOK = 1;
+
     RestTemplate restTemplate = new RestTemplate();
     AlertDialog dba;
+    CallbackManager cbm;
     private Context mContext;
     private LoginActivity activity;
     @BindView(R.id.login) Button mLoginButton;
@@ -82,6 +94,33 @@ public class LoginFragment extends Fragment {
         mContext = getActivity();
         activity = (LoginActivity)getActivity();
         ButterKnife.bind(this,view);
+
+        final LoginButton loginButton = (LoginButton) view.findViewById(R.id.login_fb);
+        loginButton.setReadPermissions("email");
+        // If using in a fragment
+        loginButton.setFragment(this);
+        // Other app specific specialization
+        // Callback registration
+        cbm = CallbackManager.Factory.create();
+        loginButton.registerCallback(cbm, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+//                loginResult.getRecentlyGrantedPermissions().
+                setFacebookData(loginResult);
+                Log.d("loginResult : ", loginResult.toString());
+            }
+
+            @Override
+            public void onCancel() {
+                // App code
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                // App code
+            }
+        });
+
 //        mLoginButton = (Button) view.findViewById(R.id.login);
 //        mRegisterButton = (Button) view.findViewById(R.id.register);
 //        mUserNameT = (EditText) view.findViewById(R.id.name);
@@ -89,7 +128,7 @@ public class LoginFragment extends Fragment {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loginRetrofit(mUserNameT.getText().toString(), mPasswordT.getText().toString());
+                loginRetrofit(mUserNameT.getText().toString(), mPasswordT.getText().toString(),LOGIN_EMAIL);
             }
         });
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
@@ -110,21 +149,76 @@ public class LoginFragment extends Fragment {
         if(connected) {
             String username = sharedPref.getString("username","");
             String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
-            loginRetrofit(username,password);
+            loginRetrofit(username,password,LOGIN_EMAIL);
         }
 
 
     }
-    private void loginRetrofit(final String username, final String password){
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        cbm.onActivityResult(requestCode, resultCode, data);
+    }
 
-                User user = new User(username,password);
+    private void setFacebookData(final LoginResult loginResult)
+    {
+        if (loginResult.getRecentlyGrantedPermissions().size() > 0) {
+
+            GraphRequest request = GraphRequest.newMeRequest(
+                    loginResult.getAccessToken(),
+                    new GraphRequest.GraphJSONObjectCallback() {
+                        @Override
+                        public void onCompleted(JSONObject object, GraphResponse response) {
+                            // Application code
+                            try {
+                                Log.i("Response", response.toString());
+                                String email = response.getJSONObject().getString("email");
+                                String firstName = response.getJSONObject().getString("first_name");
+                                String lastName = response.getJSONObject().getString("last_name");
+//                            String gender = response.getJSONObject().getString("gender");
+//                            String bday= response.getJSONObject().getString("birthday");
+
+                                Profile profile = Profile.getCurrentProfile();
+                                String id = profile.getId();
+                                loginRetrofit(firstName+"."+lastName,id,LOGIN_FACEBOOK);
+
+//                            String link = profile.getLinkUri().toString();
+//                            Log.i("Link",link);
+//                            if (Profile.getCurrentProfile()!=null)
+//                            {
+//                                Log.i("Login", "ProfilePic" + Profile.getCurrentProfile().getProfilePictureUri(200, 200));
+//                            }
+
+                                Log.i("Login" + "Email", email);
+                                Log.i("Login" + "FirstName", firstName);
+                                Log.i("Login" + "LastName", lastName);
+//                            Log.i("Login" + "Gender", gender);
+//                            Log.i("Login" + "Bday", bday);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    });
+            Bundle parameters = new Bundle();
+            parameters.putString("fields", "id,email,first_name,last_name");
+            request.setParameters(parameters);
+            request.executeAsync();
+        }else
+            Toast.makeText(getActivity(),"facebook permission not granted",Toast.LENGTH_LONG).show();
+    }
+
+    private void loginRetrofit(final String username, final String password, final int mode){
+
+                User user = new User(username,password,"");
                 try {
 //                    HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
 //                    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 //                    OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
                     JSONObject json = user.toJsonObject();
                     Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl(SERVER_URL)
+                            .baseUrl(MainActivity.SERVER_URL)
                             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                             .addConverterFactory(ScalarsConverterFactory.create())
                             .addConverterFactory(GsonConverterFactory.create())
@@ -156,8 +250,23 @@ public class LoginFragment extends Fragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(mContext,getString(R.string.error_user_not_exist),Toast.LENGTH_LONG).show();
-                                        dba.dismiss();
+                                        if(mode == LOGIN_EMAIL) {
+                                            Toast.makeText(mContext, getString(R.string.error_user_not_exist), Toast.LENGTH_LONG).show();
+                                            dba.dismiss();
+                                        }else if(mode == LOGIN_FACEBOOK){
+                                            FragmentManager fm = getFragmentManager();
+                                            FragmentTransaction ft = fm.beginTransaction();
+                                            Fragment list = new RegisterFragment();
+                                            Bundle args = new Bundle();
+                                            args.putString("username",username);
+                                            args.putString("password",password);
+                                            args.putInt("mode",mode);
+                                            list.setArguments(args);
+                                            ft.addToBackStack(null);
+                                            ft.replace(R.id.fragment_holder, list)
+                                                    .addToBackStack("register")
+                                                    .commit();
+                                        }
                                     }
                                 });
                             }

@@ -4,4 +4,41 @@
     android:background="@drawable/background_toolbar_translucent"
     android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" />
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+    <RelativeLayout
+        android:layout_width="match_parent" android:layout_height="match_parent">
+        <ImageView android:src="@drawable/ic_list_white_36dp"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            android:id="@+id/action_menu"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"/>
+        <TextView
+            android:textSize="20sp"
+            android:text="title"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/title_actionbar"
+            android:textColor="#FFF"
+            android:layout_toRightOf="@id/action_menu"/>
+
+        <ImageView android:src="@drawable/ic_add_white_36dp"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            android:id="@+id/action_add"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"/>
+        <ImageView android:src="@drawable/ic_replay_white_36dp"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            android:visibility="gone"
+            android:id="@+id/action_refresh"
+            android:layout_toLeftOf="@id/action_add"
+            android:layout_alignParentTop="true"/>
+    </RelativeLayout>
+</android.support.v7.widget.Toolbar>

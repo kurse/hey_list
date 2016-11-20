@@ -5,17 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
-    android:weightSum="1"
-    android:background="@drawable/background_login">
+    android:background="@drawable/background_login"
+    android:weightSum="1">
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="0.4"
         android:inputType="textPersonName"
-        android:hint="@string/register_title"
+        android:hint="Password Recovery"
         android:gravity="center"
         android:textColorHint="#FFFF"
-        android:textSize="40sp"
+        android:textSize="25sp"
         android:ems="10"
         tools:layout_editor_absoluteX="62dp"
         tools:layout_editor_absoluteY="31dp"
@@ -23,70 +24,28 @@
         android:paddingRight="@dimen/text_margin"
         android:textColor="#FFFF"
         android:id="@+id/textView" />
+
     <EditText
-        android:id="@+id/register_username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:hint="@string/username"
-        android:drawableLeft="@drawable/icon_username"
-        android:background="#FFFF"
-        android:textColorHint="#96B7CA6C"
-        android:ems="10"
-        tools:layout_editor_absoluteX="62dp"
-        tools:layout_editor_absoluteY="31dp"
-        android:drawablePadding="10dip"
-        android:layout_marginBottom="@dimen/text_margin"
-        android:paddingLeft="@dimen/text_margin"
-        android:paddingRight="@dimen/text_margin"
-        android:paddingTop="4dip"
-        android:paddingBottom="4dip"
-        android:textColor="#B7CA6C"
-        />
-    <EditText
-        android:id="@+id/email_address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-        android:hint="@string/email_address"
-        android:drawableLeft="@drawable/icon_email"
-        android:background="#FFFF"
-        android:textColorHint="#96B7CA6C"
-        android:ems="10"
-        tools:layout_editor_absoluteX="62dp"
-        tools:layout_editor_absoluteY="31dp"
-        android:drawablePadding="10dip"
-        android:layout_marginBottom="@dimen/text_margin"
-        android:paddingLeft="@dimen/text_margin"
-        android:paddingRight="@dimen/text_margin"
-        android:paddingTop="4dip"
-        android:paddingBottom="4dip"
-        android:textColor="#B7CA6C"
-        />
-    <EditText
-        android:id="@+id/register_password"
-        android:textColor="#B7CA6C"
-        android:textColorHint="#96B7CA6C"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
-        android:drawableLeft="@drawable/icon_password"
-        android:drawablePadding="10dip"
         android:hint="@string/password"
-
-
+        android:drawableLeft="@drawable/icon_password"
+        android:background="#FFFF"
+        android:textColorHint="#96B7CA6C"
+        android:ems="10"
+        tools:layout_editor_absoluteX="62dp"
+        tools:layout_editor_absoluteY="31dp"
+        android:drawablePadding="10dip"
+        android:layout_marginBottom="@dimen/text_margin"
         android:paddingLeft="@dimen/text_margin"
         android:paddingRight="@dimen/text_margin"
         android:paddingTop="4dip"
         android:paddingBottom="4dip"
-        android:layout_marginBottom="@dimen/text_margin"
-        android:ems="10"
-        android:background="#FFFF"
-        tools:layout_editor_absoluteX="55dp"
-        tools:layout_editor_absoluteY="86dp"
-        />
+        android:textColor="#B7CA6C"
+        android:id="@+id/password" />
+
     <EditText
-        android:id="@+id/password_confirm"
         android:textColor="#B7CA6C"
         android:textColorHint="#96B7CA6C"
         android:layout_width="wrap_content"
@@ -96,40 +55,41 @@
         android:drawablePadding="10dip"
         android:hint="@string/password_confirm"
 
+
         android:paddingLeft="@dimen/text_margin"
         android:paddingRight="@dimen/text_margin"
         android:paddingTop="4dip"
-        android:paddingBottom="4dip"
-        android:layout_marginBottom="@dimen/text_margin"
+        android:paddingBottom="4dip"            android:layout_marginBottom="@dimen/text_margin"
+
         android:ems="10"
         android:background="#FFFF"
         tools:layout_editor_absoluteX="55dp"
         tools:layout_editor_absoluteY="86dp"
-        />
+        android:id="@+id/password_confirm" />
+
     <Button
-        android:id="@+id/create_account"
         android:paddingLeft="@dimen/activity_vertical_margin"
         android:paddingRight="@dimen/activity_vertical_margin"
-        android:text="@string/register"
+        android:text="@string/confirm"
         android:textColor="#FFFF"
         android:layout_width="214dp"
         android:layout_height="32dp"
         tools:layout_editor_absoluteX="95dp"
         tools:layout_editor_absoluteY="152dp"
+        android:id="@+id/login"
         android:layout_marginBottom="@dimen/activity_horizontal_margin"
         android:background="#91A516"
-        android:layout_weight="0.01"/>
+        android:layout_weight="0.01" />
+
     <Button
-        android:id="@+id/back"
-        android:paddingLeft="@dimen/activity_vertical_margin"
-        android:paddingRight="@dimen/activity_vertical_margin"
-        android:text="@string/back"
         android:textColor="#FFFF"
+        android:background="#91A516"
+        android:text="@string/cancel"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"
+
         android:layout_width="214dp"
         android:layout_height="32dp"
         tools:layout_editor_absoluteX="95dp"
         tools:layout_editor_absoluteY="152dp"
-        android:layout_marginBottom="@dimen/activity_horizontal_margin"
-        android:background="#91A516"
-        android:layout_weight="0.01"/>
+        android:id="@+id/register" />
 </LinearLayout>

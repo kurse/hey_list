@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.youssef.list.MainActivity;
 import com.example.youssef.list.R;
 import com.example.youssef.list.interfaces.ServerApi;
 
@@ -46,10 +47,9 @@ import rx.schedulers.Schedulers;
  */
 
 public class AddUserFragment extends Fragment{
-    public static String SERVER_URL = "http://137.74.44.134:8080";
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(SERVER_URL)
+            .baseUrl(MainActivity.SERVER_URL)
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())

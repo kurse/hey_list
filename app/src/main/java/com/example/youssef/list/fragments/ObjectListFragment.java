@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -23,6 +24,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,6 +38,7 @@ import com.example.youssef.list.models.User;
 import com.example.youssef.list.presenters.PresenterCache;
 import com.example.youssef.list.presenters.PresenterFactory;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,7 +58,7 @@ import butterknife.ButterKnife;
  * Created by Youssef on 7/30/2016.
  */
 
-public class ObjectListFragment extends Fragment implements Contract.View<ArrayList<String>> {
+public class ObjectListFragment extends Fragment implements Contract.View<ArrayList<String>, ArrayList<Boolean>>, View.OnClickListener {
 
 
     private PresenterCache presenterCache =
@@ -268,18 +271,50 @@ public class ObjectListFragment extends Fragment implements Contract.View<ArrayL
 
 
     @Override
-    public void onNext(final ArrayList<String> array){
+    public void onNext(final ArrayList<String> array, final ArrayList<Boolean> checked){
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mObjectsAdapter.clear();
                 for (int i = 0; i < array.size(); i++)
-                    mObjectsAdapter.addItem(array.get(i));
+                    mObjectsAdapter.addItem(array.get(i), checked.get(i));
                 mObjectsAdapter.notifyDataSetChanged();
             }
         });
 
     }
+    private void setupToolbar() {
+
+        ImageView addItem = (ImageView) getActivity().findViewById(R.id.action_add);
+        addItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mCurUser.getCompany()!=null)
+                    showDialogText();
+                else
+                    Toast.makeText(getActivity(),getString(R.string.error_no_group_add),Toast.LENGTH_LONG).show();
+            }
+        });
+        ImageView refresh = (ImageView) getActivity().findViewById(R.id.action_refresh);
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.fetchListRetrofit();
+            }
+        });
+        ImageView menu = (ImageView) getActivity().findViewById(R.id.action_menu);
+        menu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DrawerLayout dl = (DrawerLayout) getActivity().findViewById(R.id.activity_main);
+                if(dl.isDrawerOpen(Gravity.LEFT))
+                    dl.closeDrawer(Gravity.LEFT);
+                else
+                    dl.openDrawer(Gravity.LEFT);            }
+        });
+    }
+
+
     @Override
     public void showError(final String error){
         getActivity().runOnUiThread(new Runnable() {
@@ -501,6 +536,7 @@ public class ObjectListFragment extends Fragment implements Contract.View<ArrayL
 //    }
     @Override
     public void onDestroy() {
+        EventBus.getDefault().unregister(this);
         if(dba!=null && dba.isShowing())
             dba.dismiss();
         if(dbRetry!=null && dbRetry.isShowing())
@@ -516,6 +552,7 @@ public class ObjectListFragment extends Fragment implements Contract.View<ArrayL
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         mContext = view.getContext();
         ButterKnife.bind(this, view);
+        setupToolbar();
 //        LinearLayout ll = (LinearLayout) view;
 //        mObjectsList = (ListView)ll.findViewById(R.id.objects_list);
         mObjectsAdapter = new ItemsAdapter(mContext, presenter);
@@ -526,4 +563,27 @@ public class ObjectListFragment extends Fragment implements Contract.View<ArrayL
         presenter.takeView(this);
     }
 
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()){
+            case R.id.action_refresh:
+                presenter.fetchListRetrofit();
+                break;
+            case R.id.action_add:
+                if(mCurUser.getCompany()!=null)
+                    showDialogText();
+                else
+                    Toast.makeText(getActivity(),getString(R.string.error_no_group_add),Toast.LENGTH_LONG).show();
+                break;
+            case R.id.action_menu:
+                DrawerLayout dl = (DrawerLayout) getActivity().findViewById(R.id.activity_main);
+                if(dl.isDrawerOpen(Gravity.LEFT))
+                    dl.closeDrawer(Gravity.LEFT);
+                else
+                    dl.openDrawer(Gravity.LEFT);
+                break;
+            default:
+                break;
+        }
+    }
 }

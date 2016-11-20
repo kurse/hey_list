@@ -47,9 +47,8 @@ import rx.schedulers.Schedulers;
 
 public class CompanyCreationFragment extends Fragment {
     RestTemplate restTemplate = new RestTemplate();
-    public static String SERVER_URL = "http://137.74.44.134:8080";
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(SERVER_URL)
+            .baseUrl(MainActivity.SERVER_URL)
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
@@ -79,7 +78,13 @@ public class CompanyCreationFragment extends Fragment {
         mButtonCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                newGroupRetrofit();
+                if(mCompanyName.getText().toString().length()==0){
+
+                    mCompanyName.setError(getResources().getString(R.string.empty_error));
+                    mCompanyName.requestFocus();
+                }
+                else
+                    newGroupRetrofit();
             }
         });
         Button back = (Button)view.findViewById(R.id.back);

@@ -8,12 +8,17 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.youssef.list.MainActivity;
 import com.example.youssef.list.R;
 import com.example.youssef.list.fragments.ObjectListFragment;
 import com.example.youssef.list.interfaces.Contract;
 import com.example.youssef.list.interfaces.ServerApi;
 import com.example.youssef.list.models.User;
+import com.google.firebase.messaging.FirebaseMessaging;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,10 +44,10 @@ import rx.schedulers.Schedulers;
 
 public class ListPresenter extends Presenter implements Contract.Presenter<ObjectListFragment>{
 
-    public static String SERVER_URL = "http://137.74.44.134:8080";
     public static String UNKNOWN;
     public static String NOT_CONNECTED;
     public static String FAILED_LOGIN;
+
     public static String TAG = "ListPresenter";
     public static String FETCH_LIST_ADDRESS = "http://137.74.44.134:8080/getList";
     public static String ADD_ITEM_ADDRESS = "http://137.74.44.134:8080/addItem";
@@ -52,10 +57,11 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
     public static String ERROR_TOKEN_DETECT = "invalidToken";
     private Boolean isRequest = false;
     private ArrayList<String> items;
+    private ArrayList<Boolean> checkedItems;
     RestTemplate restTemplate = new RestTemplate();
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(SERVER_URL)
+            .baseUrl(MainActivity.SERVER_URL)
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
@@ -85,7 +91,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
 
     private Throwable error;
     private ObjectListFragment mFragment;
-
+    private boolean registered = false;
     public void removeItemRetrofit(final String item){
         if(!isRequest) {
             error = null;
@@ -95,7 +101,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                 JSONObject json = new JSONObject();
                 json.put("listId",mCurUser.getCompany().getmListId());
                 json.put("item",item);
-
+                json.put("username",mCurUser.getUsername());
                 final Observable<String> removeObservable = serverApi.removeItem(mToken, json.toString());
                 Observer removeObserver = new Observer() {
                     @Override
@@ -127,9 +133,15 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                                 JSONObject jsonResponse = new JSONObject(response);
                                 final JSONArray itemsArray = new JSONArray(jsonResponse.getString("list"));
                                 items = new ArrayList<>();
+                                checkedItems = new ArrayList<>();
                                 for (int i = 0; i < itemsArray.length(); i++)
                                     try {
-                                        items.add(itemsArray.getString(i));
+                                        JSONObject item = new JSONObject(itemsArray.getString(i));
+                                        items.add(item.getString("name"));
+                                        if(item.getBoolean("checked"))
+                                            checkedItems.add(true);
+                                        else
+                                            checkedItems.add(false);
                                     } catch (JSONException e) {
                                         error = new Error(mFragment.getString(R.string.error_title_generic));
                                         publish();
@@ -223,7 +235,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                 JSONObject json = new JSONObject();
                 json.put("listId",mCurUser.getCompany().getmListId());
                 json.put("item",item);
-
+                json.put("username",mCurUser.getUsername());
                 final Observable<String> addObservable = serverApi.addItem(mToken, json.toString());
                 Observer listObserver = new Observer() {
                     @Override
@@ -257,9 +269,15 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                                 final JSONArray itemsArray = new JSONArray(jsonResponse.getString("list"));
 
                                 items = new ArrayList<>();
+                                checkedItems = new ArrayList<>();
                                 for (int i = 0; i < itemsArray.length(); i++)
                                     try {
-                                        items.add(itemsArray.getString(i));
+                                        JSONObject item = new JSONObject(itemsArray.getString(i));
+                                        items.add(item.getString("name"));
+                                        if(item.getBoolean("checked"))
+                                            checkedItems.add(true);
+                                        else
+                                            checkedItems.add(false);
                                     } catch (JSONException e) {
                                         error = new Error(mFragment.getString(R.string.error_title_generic));
                                         publish();
@@ -354,10 +372,32 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
         Thread t = new Thread(r);
         t.start();
     }
+
+    public static class MessageEvent{
+        public String message;
+        public static ListPresenter lp;
+
+        public MessageEvent(String message){
+            this.message = message;
+        }
+
+
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+            if(event.message!=null&&event.message.equals("refresh"))
+                fetchList();
+
+    }
     @Override
     public void takeView(ObjectListFragment fragment){
         if(fragment != null){
             if(mFragment != fragment) {
+                if(!registered){
+                    registered = true;
+                    EventBus.getDefault().register(this);
+                }
+                MessageEvent.lp = this;
                 UNKNOWN = fragment.getString(R.string.error_title_generic);
                 NOT_CONNECTED = fragment.getString(R.string.error_not_connected);
                 FAILED_LOGIN = fragment.getString(R.string.error_auth_failed);
@@ -366,8 +406,10 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                     mCurUser = mFragment.mCurUser;
                     mToken = mFragment.mToken;
                 }
-                if(mCurUser.getCompany()!=null)
+                if(mCurUser.getCompany()!=null) {
                     fetchListRetrofit();
+                    FirebaseMessaging.getInstance().subscribeToTopic(mCurUser.getCompany().getmListId());
+                }
             }
         }
         else {
@@ -376,6 +418,92 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
             mToken = null;
         }
 //        publish();
+    }
+    public void checkRetrofit(final String item, final boolean checked){
+            if(!isRequest) {
+                error = null;
+                items = null;
+                isRequest = true;
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.add("authToken", mToken);
+                try {
+                    JSONObject json = new JSONObject();
+                    json.put("listId",mCurUser.getCompany().getmListId());
+                    json.put("item",item);
+                    json.put("checked",checked);
+                    json.put("username",mCurUser.getUsername());
+                    final Observable<String> checkObservable = serverApi.checkItem(mToken, json.toString());
+                    Observer listObserver = new Observer() {
+                        @Override
+                        public void onCompleted() {
+                            isRequest=false;
+                            checkObservable.unsubscribeOn(Schedulers.newThread());
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            isRequest=false;
+                            if(e.getMessage().contains("ailed to connect")){
+                                error = new Error(mFragment.getString(R.string.error_not_connected));
+                            } else{
+                                error = new Error(mFragment.getString(R.string.error_title_generic));
+                            }
+                            publish();
+                            isRequest = false;
+                        }
+
+                        @Override
+                        public void onNext(Object o) {
+                            try {
+                                error = null;
+                                String response = o.toString();
+                                isRequest = false;
+                                Log.d("response", response);
+                                if (!response.equals(ERROR_TOKEN_DETECT)) {
+
+                                    JSONObject jsonResponse = new JSONObject(response);
+                                    final JSONArray itemsArray = new JSONArray(jsonResponse.getString("list"));
+
+                                    items = new ArrayList<>();
+                                    checkedItems = new ArrayList<>();
+                                    for (int i = 0; i < itemsArray.length(); i++)
+                                        try {
+                                            JSONObject item = new JSONObject(itemsArray.getString(i));
+                                            items.add(item.getString("name"));
+                                            if(item.getBoolean("checked"))
+                                                checkedItems.add(true);
+                                            else
+                                                checkedItems.add(false);
+                                        } catch (JSONException e) {
+                                            error = new Error(mFragment.getString(R.string.error_title_generic));
+                                            publish();
+                                        }
+                                    publish();
+                                }
+                                else{
+                                    Message msg = new Message();
+                                    msg.getData().putString("caller","checkItem");
+                                    msg.getData().putString("item",item);
+                                    msg.getData().putBoolean("checked",checked);
+                                    SharedPreferences sharedPref = mFragment.getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
+                                    String username = sharedPref.getString("username","");
+                                    String password = new String(Base64.decode(sharedPref.getString("password",""),Base64.DEFAULT));
+                                    loginRetrofit(username, password, msg);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    checkObservable.subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(listObserver);
+                }catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
     }
     public void fetchListRetrofit(){
         if(mCurUser.getCompany()!=null)
@@ -421,10 +549,16 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                                 if (!response.equals("invalidToken")) {
                                     JSONObject jsonResponse = new JSONObject(response);
                                     JSONArray itemsArray = new JSONArray(jsonResponse.getString("list"));
+                                    checkedItems = new ArrayList<>();
                                     items = new ArrayList<>();
                                     for (int i = 0; i < itemsArray.length(); i++)
                                         try {
-                                            items.add(itemsArray.getString(i));
+                                            JSONObject item = new JSONObject(itemsArray.getString(i));
+                                            items.add(item.getString("name"));
+                                            if(item.getBoolean("checked"))
+                                                checkedItems.add(true);
+                                            else
+                                                checkedItems.add(false);
                                         } catch (JSONException e) {
                                             error = new Error(mFragment.getString(R.string.error_title_generic));
                                             publish();
@@ -532,7 +666,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
 //                    OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
                 JSONObject json = user.toJsonObject();
                 Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(SERVER_URL)
+                        .baseUrl(MainActivity.SERVER_URL)
                         .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                         .addConverterFactory(ScalarsConverterFactory.create())
                         .addConverterFactory(GsonConverterFactory.create())
@@ -553,13 +687,10 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                             error = new Error(mFragment.getString(R.string.error_title_generic));
                         }
                         publish();
-
-
                     }
-
                     @Override
                     public void onNext(Object o) {
-                        if(mFragment.dbRetry.isShowing())
+                        if( mFragment!= null && mFragment.dbRetry!=null && mFragment.dbRetry.isShowing())
                             mFragment.dbRetry.dismiss();
                         error = null;
                         String responseStr = o.toString();
@@ -734,9 +865,17 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
         if (mFragment != null) {
             if (error != null)
                 mFragment.showError(error.getMessage());
-            else if (items != null)
-                mFragment.onNext(items);
+            else if (items != null) {
+                mFragment.onNext(items, checkedItems);
+            }
         }
     }
 
+    public void uncheckItem(int position) {
+
+    }
+
+    public void checkItem(int position) {
+
+    }
 }

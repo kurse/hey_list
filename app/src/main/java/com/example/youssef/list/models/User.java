@@ -27,6 +27,7 @@ public class User implements Serializable{
     private String id;
     private String username;
     private String password;
+    private String emailAddress;
     private boolean isCreator=false;
     public User(){
 
@@ -34,6 +35,11 @@ public class User implements Serializable{
     public User(String username, String password){
         this.username = username;
         this.password = password;
+    }
+    public User(String username, String password, String emailAddress){
+        this.username = username;
+        this.password = password;
+        this.emailAddress = emailAddress;
     }
     public String getId() {
         return id;
@@ -66,6 +72,7 @@ public class User implements Serializable{
             json.put("_id",id);
         json.put("username",username);
         json.put("password",password);
+        json.put("email_address",emailAddress);
         if(this.company!=null) {
             json.put("orgId", company.getmId());
             json.put("listId", company.getmListId());
@@ -102,7 +109,16 @@ public class User implements Serializable{
         this.id = json.get("_id").toString();
         this.username = json.getString("username");
         this.password = json.getString("password");
+        this.emailAddress = json.getString("email_address");
         if(json.has("company"))
             company = new Company(json);
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 }

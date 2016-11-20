@@ -3,17 +3,21 @@ package com.example.youssef.list;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.youssef.list.fireBase.FireBaseService;
 import com.example.youssef.list.adapters.DrawerAdapter;
@@ -21,6 +25,8 @@ import com.example.youssef.list.fragments.AddUserFragment;
 import com.example.youssef.list.fragments.CompanyCreationFragment;
 import com.example.youssef.list.fragments.ObjectListFragment;
 import com.example.youssef.list.models.User;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,11 +43,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity{
+    public static String SERVER_URL = "http://192.168.43.197:8080";
+//    public static String SERVER_URL = "http://137.74.44.134:8080";
     private User mCurUser;
     @BindView(R.id.navList) ListView mDrawerList;
     private DrawerAdapter mAdapter;
     private String mToken;
-    FireBaseService fbs;
+    public FireBaseService fbs;
     FirebaseController fbc;
 
     @Override
@@ -49,6 +57,9 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+
+
         Toolbar tb = (Toolbar)findViewById(R.id.main_tb);
         fbs = new FireBaseService();
 //        fbc = new FirebaseController(this);
@@ -63,6 +74,10 @@ public class MainActivity extends AppCompatActivity{
             if(jsonResponse.has("user")){
                 JSONObject userJson = new JSONObject(jsonResponse.getString("user"));
                 mCurUser.initFromJsonObject(userJson);
+                SharedPreferences prefs = getApplication().getSharedPreferences("account", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("username", mCurUser.getUsername());
+                editor.commit();
             }
             if(jsonResponse.has("token"))
                 mToken = jsonResponse.getString("token");
@@ -83,8 +98,10 @@ public class MainActivity extends AppCompatActivity{
             title = mCurUser.getCompany().getmName();
         else
             title = "Hey!List";
-        tb.setTitle(title);
-        tb.setTitleTextColor(Color.WHITE);
+        TextView titleText = (TextView) findViewById(R.id.title_actionbar);
+        titleText.setText(title);
+//        tb.setTitle(title);
+//        tb.setTitleTextColor(Color.WHITE);
         setSupportActionBar(tb);
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -188,7 +205,7 @@ public class MainActivity extends AppCompatActivity{
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_bar,menu);
+//        getMenuInflater().inflate(R.menu.action_bar,menu);
         return super.onCreateOptionsMenu(menu);
     }
 

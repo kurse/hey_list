@@ -16,6 +16,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.youssef.list.fragments.LoginFragment;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.auth.GoogleAuthUtil;
 
 import org.json.JSONArray;
@@ -123,6 +125,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
         setContentView(R.layout.activity_login);
 
             FragmentManager fm = getFragmentManager();

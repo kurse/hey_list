@@ -40,6 +40,10 @@ public interface ServerApi {
     Observable<String> addItem(@Header("authToken") String token, @Body String json);
 
     @Headers("Content-Type: application/json")
+    @POST("/checkItem")
+    Observable<String> checkItem(@Header("authToken") String token, @Body String json);
+
+    @Headers("Content-Type: application/json")
     @POST("/removeItem")
     Observable<String> removeItem(@Header("authToken") String token, @Body String json);
 
