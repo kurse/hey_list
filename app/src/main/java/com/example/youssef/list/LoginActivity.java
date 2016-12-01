@@ -128,12 +128,10 @@ public class LoginActivity extends AppCompatActivity {
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(this);
         setContentView(R.layout.activity_login);
-
             FragmentManager fm = getFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
             Fragment list = new LoginFragment();
             ft.replace(R.id.fragment_holder, list).commit();
-
     }
 
 

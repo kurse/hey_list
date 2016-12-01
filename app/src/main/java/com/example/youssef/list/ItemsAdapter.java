@@ -2,7 +2,9 @@ package com.example.youssef.list;
 
 import android.content.Context;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.support.v7.widget.AppCompatCheckBox;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,11 @@ import android.widget.TextView;
 
 import com.example.youssef.list.fragments.ObjectListFragment;
 import com.example.youssef.list.presenters.ListPresenter;
+import com.fasterxml.jackson.core.io.UTF8Writer;
+import com.fasterxml.jackson.databind.util.ISO8601Utils;
 
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 /**
@@ -23,6 +29,7 @@ import java.util.ArrayList;
 
 public class ItemsAdapter extends BaseAdapter {
 
+    Typeface custom_font;
     Context context;
     ArrayList<String> data = new ArrayList<>();
     ArrayList<Boolean> checkedItems = new ArrayList<>();
@@ -43,6 +50,7 @@ public class ItemsAdapter extends BaseAdapter {
     public ItemsAdapter(Context context, ListPresenter presenter){
         this.context = context;
 //        this.mOLFragment = fragment;
+        custom_font = Typeface.createFromAsset(context.getAssets(), "fonts/deja_vu_sans.ttf");
         this.presenter = presenter;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -55,7 +63,13 @@ public class ItemsAdapter extends BaseAdapter {
 //    }
 
     public void addItem(final String item, boolean checked) {
-        data.add(item);
+        String textStr= item;
+        try {
+            textStr = new String(item.getBytes(),"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        data.add(textStr);
         checkedItems.add(checked);
         notifyDataSetChanged();
     }
@@ -84,6 +98,8 @@ public class ItemsAdapter extends BaseAdapter {
         if (vi == null)
             vi = inflater.inflate(R.layout.fragment_object, null);
         final TextView text = (TextView) vi.findViewById(R.id.object_item_text);
+//        text.setTypeface(custom_font);
+
         text.setText(data.get(position));
         final AppCompatCheckBox checkBox = (AppCompatCheckBox)vi.findViewById(R.id.check);
         checkBox.setChecked(checkedItems.get(position));

@@ -12,6 +12,22 @@
         <item name="android:actionBarStyle">@style/MyActionBarStyle</item>
     </style>
 
+    <style name="mySpinnerStyle" parent="android:Widget.ListView.DropDown">
+        <item name="android:divider">#5e5e5e</item>
+        <item name="android:dividerHeight">1dp</item>
+
+    </style>
+
+    <style name="spinner_style">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:spinnerMode">dropdown</item>
+        <item name="android:background">@drawable/gradient_spinner</item>
+        <item name="android:layout_margin">10dp</item>
+
+        <item name="android:dropDownListViewStyle">@style/mySpinnerStyle</item>
+        <item name="android:popupBackground">@drawable/spinner_dropdown</item>
+    </style>
     <style name="MyActionBarStyle" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="displayOptions">showCustom</item>
         <item name="android:displayOptions">showCustom</item>

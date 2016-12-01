@@ -24,6 +24,7 @@ import java.io.Serializable;
 public class User implements Serializable{
 
     private Company company;
+    private String curOrgId;
     private String id;
     private String username;
     private String password;
@@ -32,6 +33,15 @@ public class User implements Serializable{
     public User(){
 
     }
+
+    public String getCurOrgId() {
+        return curOrgId;
+    }
+
+    public void setCurOrgId(String curOrgId) {
+        this.curOrgId = curOrgId;
+    }
+
     public User(String username, String password){
         this.username = username;
         this.password = password;
@@ -40,6 +50,12 @@ public class User implements Serializable{
         this.username = username;
         this.password = password;
         this.emailAddress = emailAddress;
+    }
+    public User(String username, String password, String emailAddress, String orgId){
+        this.username = username;
+        this.password = password;
+        this.emailAddress = emailAddress;
+        this.curOrgId = orgId;
     }
     public String getId() {
         return id;
@@ -73,9 +89,10 @@ public class User implements Serializable{
         json.put("username",username);
         json.put("password",password);
         json.put("email_address",emailAddress);
-        if(this.company!=null) {
-            json.put("orgId", company.getmId());
-            json.put("listId", company.getmListId());
+        if(this.curOrgId!=null) {
+            json.put("orgID", curOrgId);
+            if(this.company!=null)
+                json.put("listId", company.getmListId());
         }
         return json;
     }
@@ -90,6 +107,7 @@ public class User implements Serializable{
     public void setCompany(String json) {
         try {
             this.company = new Company(new JSONObject(json));
+            curOrgId = company.getmId();
             if(company.getmCreatorId().equals(id))
                 isCreator=true;
         } catch (JSONException e) {
@@ -110,8 +128,11 @@ public class User implements Serializable{
         this.username = json.getString("username");
         this.password = json.getString("password");
         this.emailAddress = json.getString("email_address");
-        if(json.has("company"))
+        if(json.has("company")){
             company = new Company(json);
+            this.curOrgId = company.getmId();
+        }
+
     }
 
     public String getEmailAddress() {

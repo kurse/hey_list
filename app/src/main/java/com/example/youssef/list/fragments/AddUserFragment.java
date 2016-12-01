@@ -1,11 +1,13 @@
 package com.example.youssef.list.fragments;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
@@ -18,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -79,7 +82,7 @@ public class AddUserFragment extends Fragment{
 
             json.put("orgId", mCompanyId);
             json.put("listId", mListId);
-            json.put("userName", userName);
+            json.put("username", userName);
 
             final Observable<String> addUserObservable = serverApi.addUser(mToken, json.toString());
             Observer addUserObserver = new Observer() {
@@ -104,7 +107,14 @@ public class AddUserFragment extends Fragment{
                                 @Override
                                 public void run() {
                                     Toast.makeText(mContext, getString(R.string.add_user_success), Toast.LENGTH_LONG).show();
-                                    getFragmentManager().popBackStack("objectsList",0);
+                                    getFragmentManager().popBackStack("addUser",0);
+                                }
+                            });
+                        }else if(jsonResponse.getString("result").equals("missing")){
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(mContext, getString(R.string.error_user_not_exist), Toast.LENGTH_LONG).show();
                                 }
                             });
                         }
@@ -189,6 +199,8 @@ public class AddUserFragment extends Fragment{
                 Fragment registerFragment = new RegisterFragment();
                 Bundle bundle = new Bundle();
                 bundle.putInt("mode",ADD_NEW_USER);
+                bundle.putString("adderName",getArguments().getString("adderName"));
+                bundle.putString("groupName",getArguments().getString("groupName"));
                 bundle.putString("orgId",mCompanyId);
                 bundle.putString("listId",mListId);
                 bundle.putString("token",mToken);
@@ -204,7 +216,33 @@ public class AddUserFragment extends Fragment{
             public void onClick(View v) {
                 DrawerLayout dl = (DrawerLayout) getActivity().findViewById(R.id.activity_main);
                 dl.closeDrawer(Gravity.LEFT);
-                showAddExistingDlg();
+                final SharedPreferences sharedPref = getActivity().getSharedPreferences("account",Context.MODE_PRIVATE);
+                if(!sharedPref.contains("firstLogin"))
+                {
+                    AlertDialog.Builder dlg = new AlertDialog.Builder(getActivity());
+                    dlg.setTitle(getString(R.string.facebook_tip_title));
+                    dlg.setMessage(getString(R.string.facebook_tip_msg));
+                    dlg.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            showAddExistingDlg();
+                            dialog.dismiss();
+                        }
+                    });
+                    dlg.setNegativeButton(getString(R.string.stop_showing), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putBoolean("firstLogin",true);
+                            editor.commit();
+                            showAddExistingDlg();
+                            dialog.dismiss();
+
+                        }
+                    });
+                    dlg.show();
+                }else
+                    showAddExistingDlg();
             }
         });
 

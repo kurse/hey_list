@@ -48,6 +48,11 @@ public class Company implements Serializable{
         this.mName = name;
         this.mCreatorId = creatorId;
     }
+    public void switchCompany(String id, String name, String listId){
+        this.mId = id;
+        this.mListId = listId;
+        this.mName = name;
+    }
     public JSONObject toJSOnObject(){
         JSONObject json = new JSONObject();
         try {

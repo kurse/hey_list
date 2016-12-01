@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
-    android:background="@drawable/background_login"
+    android:background="#91A516"
     android:weightSum="1">
 
     <TextView
@@ -45,59 +45,67 @@
             android:textColor="#B7CA6C"
             android:id="@+id/username" />
 
-        <EditText
-            android:textColor="#B7CA6C"
-            android:textColorHint="#96B7CA6C"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:drawableLeft="@drawable/icon_password"
-            android:drawablePadding="10dip"
-            android:hint="@string/password"
+    <EditText
+        android:textColor="#B7CA6C"
+        android:textColorHint="#96B7CA6C"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:drawableLeft="@drawable/icon_password"
+        android:drawablePadding="10dip"
+        android:hint="@string/password"
 
 
-            android:paddingLeft="@dimen/text_margin"
-            android:paddingRight="@dimen/text_margin"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"            android:layout_marginBottom="@dimen/text_margin"
+        android:paddingLeft="@dimen/text_margin"
+        android:paddingRight="@dimen/text_margin"
+        android:paddingTop="4dip"
+        android:paddingBottom="4dip"            android:layout_marginBottom="@dimen/text_margin"
 
-            android:ems="10"
-            android:background="#FFFF"
-            tools:layout_editor_absoluteX="55dp"
-            tools:layout_editor_absoluteY="86dp"
-            android:id="@+id/password" />
+        android:ems="10"
+        android:background="#FFFF"
+        tools:layout_editor_absoluteX="55dp"
+        tools:layout_editor_absoluteY="86dp"
+        android:id="@+id/password" />
 
-        <Button
+    <Button
             android:paddingLeft="@dimen/activity_vertical_margin"
             android:paddingRight="@dimen/activity_vertical_margin"
             android:text="@string/connect"
-            android:textColor="#FFFF"
-            android:layout_width="214dp"
-            android:layout_height="32dp"
+            android:background="@android:drawable/dialog_holo_light_frame"
+            android:layout_width="236dp"
+            android:textColor="#91A516"
+            android:layout_height="wrap_content"
             tools:layout_editor_absoluteX="95dp"
             tools:layout_editor_absoluteY="152dp"
             android:id="@+id/login"
-            android:layout_marginBottom="@dimen/activity_horizontal_margin"
-            android:background="#91A516"
-            android:layout_weight="0.01" />
+             />
 
-        <Button
-            android:textColor="#FFFF"
-            android:background="#91A516"
+    <Button
+            android:textColor="#91A516"
             android:text="@string/register"
-            android:layout_marginBottom="@dimen/activity_horizontal_margin"
 
-            android:layout_width="214dp"
-            android:layout_height="32dp"
+        android:background="@android:drawable/dialog_holo_light_frame"
+        android:layout_width="236dp"
+            android:layout_height="wrap_content"
             tools:layout_editor_absoluteX="95dp"
             tools:layout_editor_absoluteY="152dp"
             android:id="@+id/register" />
 
+    <Button
+        android:background="@android:drawable/dialog_holo_light_frame"
+        android:layout_width="236dp"
+        android:textColor="#91A516"
+        android:text="@string/added_user"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="95dp"
+        tools:layout_editor_absoluteY="152dp"
+        android:id="@+id/added_users" />
+
     <com.facebook.login.widget.LoginButton
         android:id="@+id/login_fb"
-        android:layout_width="214dp"
+        android:layout_width="220dp"
         android:layout_height="70dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:layout_marginBottom="@dimen/activity_horizontal_margin"/>
 </LinearLayout>

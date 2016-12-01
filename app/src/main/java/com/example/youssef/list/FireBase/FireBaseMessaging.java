@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.example.youssef.list.LoginActivity;
 import com.example.youssef.list.MainActivity;
+import com.example.youssef.list.MainController;
 import com.example.youssef.list.R;
 import com.example.youssef.list.presenters.ListPresenter;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -55,7 +56,7 @@ public class FireBaseMessaging extends FirebaseMessagingService {
                     if(!isRunning())
                         sendNotification(action, username, item);
                     else
-                        EventBus.getDefault().post(new ListPresenter.MessageEvent("refresh"));
+                        EventBus.getDefault().post(new MainController.MessageEvent("refresh"));
                 }
 //                sendNotification(action, username, item);
 

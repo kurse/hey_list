@@ -73,8 +73,6 @@ public class CompanyCreationFragment extends Fragment {
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         mUserId = this.getArguments().getString("id");
         this.mContext = view.getContext();
-//        mCompanyName = (EditText) view.findViewById(R.id.company_name);
-//        mButtonCreate = (Button) view.findViewById(R.id.create_company_button);
         mButtonCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,8 +119,11 @@ public class CompanyCreationFragment extends Fragment {
                     startActivity(main);
                     getActivity().finish();
                 }
-                else
-                    Toast.makeText(mContext,getString(R.string.error_group_exists),Toast.LENGTH_LONG).show();
+                else {
+                    mCompanyName.setError(getString(R.string.error_group_exists));
+                    mCompanyName.requestFocus();
+                }
+
 
             }
         };
