@@ -1,4 +1,4 @@
-package com.example.youssef.list;
+package com.example.youssef.list.adapters;
 
 import android.content.Context;
 import android.graphics.Paint;
@@ -14,6 +14,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.example.youssef.list.R;
 import com.example.youssef.list.fragments.ObjectListFragment;
 import com.example.youssef.list.presenters.ListPresenter;
 import com.fasterxml.jackson.core.io.UTF8Writer;

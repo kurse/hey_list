@@ -12,10 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Base64;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -31,26 +28,23 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.youssef.list.ItemsAdapter;
+import com.example.youssef.list.adapters.ItemsAdapter;
+import com.example.youssef.list.models.Item;
+import com.example.youssef.list.models.Item_Table;
 import com.example.youssef.list.presenters.ListPresenter;
 import com.example.youssef.list.R;
-import com.example.youssef.list.interfaces.Contract;
 import com.example.youssef.list.models.User;
 import com.example.youssef.list.presenters.PresenterCache;
 import com.example.youssef.list.presenters.PresenterFactory;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -88,6 +82,7 @@ public class ObjectListFragment extends Fragment implements  View.OnClickListene
     Runnable uiRunnable;
     @BindView(R.id.objects_list_layout) public SwipeRefreshLayout mObjectsListLayout;
     @BindView(R.id.objects_list) ListView mObjectsList;
+    @BindView(R.id.items_added) TextView mAddedItemsText;
     private ItemsAdapter mObjectsAdapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,112 +100,6 @@ public class ObjectListFragment extends Fragment implements  View.OnClickListene
         return inflater.inflate(R.layout.fragment_object_list,container,false);
     }
 
-//    private void addItemDB(final String item){
-//        Runnable r = new Runnable() {
-//            @Override
-//            public void run() {
-//
-//
-//
-//                String url = "http://137.74.44.134:8080/addItem";
-//
-//                HttpHeaders headers = new HttpHeaders();
-//                headers.setContentType(MediaType.APPLICATION_JSON);
-//                headers.add("authToken",mToken);
-//                String response="";
-//                try {
-//                    JSONObject json = new JSONObject();
-//                    json.put("listId",mCurUser.getCompany().getmListId());
-//                    json.put("item",item);
-//                    String listIdJson = json.toString();
-//                    HttpEntity<String> entity = new HttpEntity<>(listIdJson,headers);
-//
-//                    response = restTemplate.postForObject(url, entity, String.class);
-//                    Log.d("response", response);
-//                    if (!response.equals("exists")) {
-//                        JSONObject jsonResponse = new JSONObject(response);
-//                        final JSONArray array = new JSONArray(jsonResponse.getString("list"));
-//
-//                        getActivity().runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                for(int i=0;i<array.length();i++)
-//                                    try {
-//                                        if(!mObjectsAdapter.contains(array.getString(i)))
-//                                            mObjectsAdapter.addItem(array.getString(i));
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                            }
-//                        });
-//                    }
-//                    else
-//                        Toast.makeText(mContext,"Erreur de connexion",Toast.LENGTH_LONG).show();
-//                }catch (Exception e){
-//                    getActivity().runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Toast.makeText(mContext,"Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard",Toast.LENGTH_LONG).show();
-//                        }
-//                    });
-//                }
-//            }
-//        };
-//        Thread t = new Thread(r);
-//        t.start();
-//    }
-//    public void removeItemDB(final String item){
-//        Runnable r = new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                String url = "http://137.74.44.134:8080/removeItem";
-//
-//                HttpHeaders headers = new HttpHeaders();
-//                headers.setContentType(MediaType.APPLICATION_JSON);
-//                headers.add("authToken",mToken);
-//                String response="";
-//                try {
-//                    JSONObject json = new JSONObject();
-//                    json.put("listId",mCurUser.getCompany().getmListId());
-//                    json.put("item",item);
-//                    String listIdJson = json.toString();
-//                    HttpEntity<String> entity = new HttpEntity<>(listIdJson,headers);
-//
-//                    response = restTemplate.postForObject(url, entity, String.class);
-//                    Log.d("response", response);
-//                    if (!response.equals("exists")) {
-//                        JSONObject jsonResponse = new JSONObject(response);
-//                        final JSONArray array = new JSONArray(jsonResponse.getString("list"));
-//
-////                        getActivity().runOnUiThread(new Runnable() {
-////                            @Override
-////                            public void run() {
-////                                for(int i=0;i<array.length();i++)
-////                                    try {
-////                                        if(!mObjectsAdapter.contains(array.getString(i)))
-////                                            mObjectsAdapter.addItem(array.getString(i));
-////                                    } catch (JSONException e) {
-////                                        e.printStackTrace();
-////                                    }
-////                            }
-////                        });
-//                    }
-//                    else
-//                        Toast.makeText(mContext,"Erreur de connexion",Toast.LENGTH_LONG).show();
-//                }catch (Exception e){
-//                    getActivity().runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Toast.makeText(mContext,"Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard",Toast.LENGTH_LONG).show();
-//                        }
-//                    });
-//                }
-//            }
-//        };
-//        Thread t = new Thread(r);
-//        t.start();
-//    }
     private void showDialogText(){
         final AlertDialog.Builder db = new AlertDialog.Builder(mContext);
         db.setTitle(getString(R.string.add_title));
@@ -278,9 +167,18 @@ public class ObjectListFragment extends Fragment implements  View.OnClickListene
             @Override
             public void run() {
                 mObjectsAdapter.clear();
-                for (int i = 0; i < array.size(); i++)
+                String text = "";
+                for (int i = 0; i < array.size(); i++){
                     mObjectsAdapter.addItem(array.get(i), checked.get(i));
+
+                }
+                List<Item> items = new Select().from(Item.class).orderBy(Item_Table.occurences, false).queryList();
+                for(int i=0; i<items.size(); i++){
+                    text += items.get(i).getItemName();
+                    text += items.get(i).occurences + " ";
+                }
                 mObjectsAdapter.notifyDataSetChanged();
+                mAddedItemsText.setText(text);
             }
         });
 

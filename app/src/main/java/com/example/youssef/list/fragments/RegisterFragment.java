@@ -508,8 +508,6 @@ public class RegisterFragment extends Fragment {
 
     @Override
     public void onStop() {
-//        if(getArguments()!=null)
-//            ((AppCompatActivity)getActivity()).getSupportActionBar().show();
         if(dba!=null && dba.isShowing())
             dba.dismiss();
         super.onStop();

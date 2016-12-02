@@ -15,6 +15,7 @@ import com.example.youssef.list.R;
 import com.example.youssef.list.fragments.ObjectListFragment;
 import com.example.youssef.list.interfaces.Contract;
 import com.example.youssef.list.interfaces.ServerApi;
+import com.example.youssef.list.models.Item;
 import com.example.youssef.list.models.User;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -140,6 +141,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                                     try {
                                         JSONObject item = new JSONObject(itemsArray.getString(i));
                                         orgs.add(item.getString("name"));
+
                                         if(item.getBoolean("checked"))
                                             checkedItems.add(true);
                                         else
@@ -507,6 +509,9 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                                         try {
                                             JSONObject item = new JSONObject(itemsArray.getString(i));
                                             orgs.add(item.getString("name"));
+                                            Item curItem = new Item();
+                                            curItem.setItemName(item.getString("name"));
+                                            curItem.save();
                                             if(item.getBoolean("checked"))
                                                 checkedItems.add(true);
                                             else
@@ -603,150 +608,13 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(responseObserver);
 
-//                    auth.enqueue(new Callback<String>() {
-//                        @Override
-//                        public void onResponse(Call<String> call, Response<String> response) {
-//                            String responseStr = response.body();
-//                            if(responseStr.equals("none")) {
-//                                getActivity().runOnUiThread(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        Toast.makeText(mContext,getString(R.string.error_user_not_exist),Toast.LENGTH_LONG).show();
-//                                        dba.dismiss();
-//                                    }
-//                                });
-//                            }
-//                            else{
-//                                if (!responseStr.equals("fail")) {
-//                                    Intent main = new Intent(mContext, MainActivity.class);
-//                                    main.putExtra("response", responseStr);
-//                                    SharedPreferences prefs = getActivity().getSharedPreferences("account",Context.MODE_PRIVATE);
-//                                    SharedPreferences.Editor editor = prefs.edit();
-//                                    editor.putString("username", username);
-//                                    editor.putString("password", Base64.encodeToString(password.getBytes(), Base64.DEFAULT));
-//                                    editor.putBoolean("connected",true);
-//                                    editor.commit();
-//                                    dba.dismiss();
-//                                    startActivity(main);
-//                                    getActivity().finish();
-//                                } else{
-//                                    getActivity().runOnUiThread(new Runnable() {
-//                                        @Override
-//                                        public void run() {
-//                                            mPasswordT.setError(getString(R.string.error_wrong_password));
-//                                            dba.dismiss();
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Call<String> call, Throwable t) {
-//                            Log.d("throwable", t.getMessage());
-//
-//                        }
-//
-//                    });
-//                    String responseStr = response.body();
-//                    if(responseStr.equals("none")) {
-//                        getActivity().runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                Toast.makeText(mContext,getString(R.string.error_user_not_exist),Toast.LENGTH_LONG).show();
-//                                dba.dismiss();
-//                            }
-//                        });
-//                    }
-//                    else{
-//                        if (!responseStr.equals("fail")) {
-//
-//                            Intent main = new Intent(mContext, MainActivity.class);
-//                            main.putExtra("response", responseStr);
-//                            SharedPreferences prefs = getActivity().getSharedPreferences("account",Context.MODE_PRIVATE);
-//                            SharedPreferences.Editor editor = prefs.edit();
-//                            editor.putString("username", username);
-//                            editor.putString("password", Base64.encodeToString(password.getBytes(), Base64.DEFAULT));
-//                            editor.putBoolean("connected",true);
-//                            editor.commit();
-//                            dba.dismiss();
-//                            startActivity(main);
-//                            getActivity().finish();
-//                        } else{
-//                            getActivity().runOnUiThread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    mPasswordT.setError(getString(R.string.error_wrong_password));
-//                                    dba.dismiss();
-//                                }
-//                            });
-//                        }
-//                    }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
         }
     }
-//    public void login(final String username, final String password, final Message callAfter){
-//        if(!isRequest) {
-//            Runnable r = new Runnable() {
-//                @Override
-//                public void run() {
-//                    isRequest = true;
-//                    User user = new User(username, password);
-//
-//                    String requestJson = null;
-//                    try {
-//                        requestJson = user.toJsonObject().toString();
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                    HttpHeaders headers = new HttpHeaders();
-//                    headers.setContentType(MediaType.APPLICATION_JSON);
-//
-//                    HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-////                    String answer = restTemplate.postForObject(url, entity, String.class);
-//                    String response = "";
-//                    try {
-//                        response = restTemplate.postForObject(AUTH_ADDRESS, entity, String.class);
-//                        Log.d("response", response);
-//                        isRequest = false;
-//                        if (!response.equals("fail")) {
-//
-//                            JSONObject responseJson = new JSONObject(response);
-//                            if (responseJson.has("token")) {
-//                                setToken(responseJson.getString("token"));
-//                                callback.handleMessage(callAfter);
-//                            } else {
-//                                error = new Error(FAILED_LOGIN);
-//                                publish();
-//                            }
-//
-////                            mFragment.getActivity().runOnUiThread(new Runnable() {
-////                                @Override
-////                                public void run() {
-////                                    Toast.makeText(mContext,"Erreur de connexion, veuillez vérifier votre connexion et réessayer plus tard",Toast.LENGTH_LONG).show();
-////                                    showRetryDlg();
-////                                }
-////                            });
-//                        }
-//                    } catch (Exception e) {
-//                        isRequest = false;
-//                        if(e.getMessage().contains("failed to connect")) {
-//                            error = new Error(NOT_CONNECTED);
-//                        } else{
-//                            error = new Error(UNKNOWN);
-//                        }
-//                        publish();
-//                    }
-//                }
-//            };
-//            Thread t = new Thread(r);
-//            t.start();
-//        }
-////        showLoadingDlg();
-//    }
 
     public void setToken(String token){
         ((MainActivity)mFragment.getActivity()).mToken = token;

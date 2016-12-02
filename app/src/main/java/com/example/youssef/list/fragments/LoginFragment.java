@@ -143,10 +143,7 @@ public class LoginFragment extends Fragment {
             }
         });
 
-//        mLoginButton = (Button) view.findViewById(R.id.login);
-//        mRegisterButton = (Button) view.findViewById(R.id.register);
-//        mUserNameT = (EditText) view.findViewById(R.id.name);
-//        mPasswordT = (EditText) view.findViewById(R.id.password);
+
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -209,26 +206,18 @@ public class LoginFragment extends Fragment {
                                 facebookEmail = response.getJSONObject().getString("email");
                                 String firstName = response.getJSONObject().getString("first_name");
                                 String lastName = response.getJSONObject().getString("last_name");
-//                            String gender = response.getJSONObject().getString("gender");
-//                            String bday= response.getJSONObject().getString("birthday");
 
                                 Profile profile = Profile.getCurrentProfile();
                                 String id = profile.getId();
                                 LoginManager.getInstance().logOut();
                                 loginRetrofit(firstName+" "+lastName,id,null,LOGIN_FACEBOOK);
 
-//                            String link = profile.getLinkUri().toString();
-//                            Log.i("Link",link);
-//                            if (Profile.getCurrentProfile()!=null)
-//                            {
-//                                Log.i("Login", "ProfilePic" + Profile.getCurrentProfile().getProfilePictureUri(200, 200));
-//                            }
+
 
                                 Log.i("Login" + "Email", facebookEmail);
                                 Log.i("Login" + "FirstName", firstName);
                                 Log.i("Login" + "LastName", lastName);
-//                            Log.i("Login" + "Gender", gender);
-//                            Log.i("Login" + "Bday", bday);
+
 
                             } catch (JSONException e) {
                                 e.printStackTrace();

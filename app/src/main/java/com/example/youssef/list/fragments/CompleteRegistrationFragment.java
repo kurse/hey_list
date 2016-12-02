@@ -201,7 +201,6 @@ public class CompleteRegistrationFragment extends Fragment {
                     complete = true;
                     mCompanyId = response;
                     mRegister.setText("Complete registration");
-//                    mUserName.setEnabled(false);
                     oldUsername = username;
 
 
@@ -371,8 +370,7 @@ public class CompleteRegistrationFragment extends Fragment {
     }
     @Override
     public void onStop() {
-//        if(getArguments()!=null)
-//            ((AppCompatActivity)getActivity()).getSupportActionBar().show();
+
         if(dba!=null && dba.isShowing())
             dba.dismiss();
         super.onStop();

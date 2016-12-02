@@ -86,12 +86,7 @@ public class UsersListFragment extends Fragment {
                         @Override
                         public void onError(Throwable e) {
                             isRequest=false;
-//                            if(e.getMessage().contains("ailed to connect")){
-//                                error = new Error(mFragment.getString(R.string.error_not_connected));
-//                            } else{
-//                                error = new Error(mFragment.getString(R.string.error_title_generic));
-//                            }
-//                            publish();
+
                         }
 
                         @Override
