@@ -69,6 +69,8 @@ public class RegisterFragment extends Fragment {
 
     public static int ADD_NEW_USER = 1;
 
+    SharedPreferences prefs = getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
+
     CallbackManager cbm;
     private String facebookEmail;
     boolean facebookRegister=false;
@@ -155,7 +157,6 @@ public class RegisterFragment extends Fragment {
 
                             }else{
                                 Intent main = new Intent(mContext, MainActivity.class);
-                                SharedPreferences prefs = getActivity().getSharedPreferences("account", Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = prefs.edit();
                                 editor.putString("username", username);
                                 editor.putString("password", Base64.encodeToString(password.getBytes(), Base64.DEFAULT));

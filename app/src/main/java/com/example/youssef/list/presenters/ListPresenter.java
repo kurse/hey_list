@@ -32,6 +32,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -63,12 +65,7 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
     private ArrayList<Boolean> checkedItems;
     RestTemplate restTemplate = new RestTemplate();
     private Boolean justLoggedIn = true;
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(MainActivity.SERVER_URL)
-            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
+    @Inject Retrofit retrofit;
     ServerApi serverApi = retrofit.create(ServerApi.class);
 
     Handler.Callback callback = new Handler.Callback() {
@@ -91,7 +88,9 @@ public class ListPresenter extends Presenter implements Contract.Presenter<Objec
 
 //    private String mToken;
     private User mCurUser;
-
+    public void ListPresenter(Retrofit retrofit){
+        this.retrofit = retrofit;
+    }
     private Throwable error;
     private ObjectListFragment mFragment;
     private boolean registered = false;

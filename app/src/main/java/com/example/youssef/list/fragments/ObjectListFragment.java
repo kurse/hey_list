@@ -46,8 +46,11 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Retrofit;
 
 /**
  * Created by Youssef on 7/30/2016.
@@ -55,7 +58,7 @@ import butterknife.ButterKnife;
 
 public class ObjectListFragment extends Fragment implements  View.OnClickListener {
 
-
+    @Inject Retrofit retrofit;
     private PresenterCache presenterCache =
             PresenterCache.getInstance();
     private PresenterFactory<ListPresenter> presenterFactory =
@@ -87,6 +90,7 @@ public class ObjectListFragment extends Fragment implements  View.OnClickListene
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        InjectorClass
         setHasOptionsMenu(true);
         setRetainInstance(true);
         presenter = presenterCache.getPresenter(ListPresenter.TAG,

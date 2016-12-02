@@ -1,7 +1,6 @@
 package com.example.youssef.list;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -9,12 +8,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -31,8 +28,6 @@ import com.example.youssef.list.fragments.GroupsListFragment;
 import com.example.youssef.list.fragments.ObjectListFragment;
 import com.example.youssef.list.fragments.UsersListFragment;
 import com.example.youssef.list.models.User;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.greenrobot.eventbus.EventBus;
@@ -45,15 +40,19 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import hotchemi.android.rate.AppRate;
 import hotchemi.android.rate.OnClickButtonListener;
+import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity{
 
+    @Inject Retrofit retrofit;
+
+    @Inject SharedPreferences prefs;
     public static int FRAGMENT_LIST = 10;
     public static int FRAGMENT_COMPANY_CREATION = 11;
     public static int FRAGMENT_GROUPS = 12;
@@ -85,7 +84,6 @@ public class MainActivity extends AppCompatActivity{
         addDrawerItems();
         TextView titleText = (TextView) findViewById(R.id.title_actionbar);
         titleText.setText(curGroupName);
-        SharedPreferences prefs = getApplication().getSharedPreferences("account", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
 
         editor.putString("orgId", mCurUser.getCompany().getmId());
@@ -106,7 +104,7 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
+        ((MyApplication) getApplication()).getComponent().inject(this);
 
 
         Toolbar tb = (Toolbar)findViewById(R.id.main_tb);
@@ -135,7 +133,6 @@ public class MainActivity extends AppCompatActivity{
                 if (jsonResponse.has("user")) {
                     JSONObject userJson = new JSONObject(jsonResponse.getString("user"));
                     mCurUser.initFromJsonObject(userJson);
-                    SharedPreferences prefs = getApplication().getSharedPreferences("account", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString("username", mCurUser.getUsername());
                     if (jsonResponse.has("company")) {
